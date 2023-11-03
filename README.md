@@ -1,3 +1,5 @@
+# Plan on implementing the following for a quality README:
+
 Brief Application description
 Contributors - In this case, it will be the team Members
 Technology Stack used for the project
