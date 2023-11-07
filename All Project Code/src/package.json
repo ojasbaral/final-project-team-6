@@ -1,0 +1,22 @@
+{
+  "name": "all-project-code",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "prestart": "npm install",
+    "start": "nodemon -L index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.2",
+    "ejs": "^3.1.9",
+    "ejs-lint": "^2.0.0",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "nodemon": "^3.0.1",
+    "pg-promise": "^11.5.4"
+  }
+}
