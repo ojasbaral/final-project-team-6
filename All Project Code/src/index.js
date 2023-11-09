@@ -50,8 +50,13 @@ app.use(
   })
 );
 
+app.get('/welcome', (req, res) => { // sample test from Lab 11
+    res.json({status: 'success', message: 'Welcome!'});
+});
+
 // API ROUTES
 
 // START SERVER
-app.listen(3000);
+// app.listen(3000);
+module.exports = app.listen(3000);
 console.log('Server is listening on port 3000');
