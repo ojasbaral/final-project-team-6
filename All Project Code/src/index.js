@@ -5,7 +5,7 @@ const app = express();
 const pgp = require('pg-promise')(); // To connect to the Postgres DB from the node server
 const bodyParser = require('body-parser');
 const session = require('express-session'); // To set the session object. To store or access session data, use the `req.session`, which is (generally) serialized as JSON by the store.
-const bcrypt = require('bcrypt'); //  To hash passwords
+//const bcrypt = require('bcrypt'); //  To hash passwords //THIS IS CAUSING AN ERROR
 
 // DATABASE CONFIGURATION
 
@@ -32,6 +32,7 @@ db.connect()
 
 // APP SETTINGS
 
+app.use( express.static( "resources" ) );
 app.set('view engine', 'ejs'); // set the view engine to EJS
 app.use(bodyParser.json()); // specify the usage of JSON for parsing request body.
 
@@ -50,11 +51,18 @@ app.use(
   })
 );
 
+// API ROUTES
+
 app.get('/welcome', (req, res) => { // sample test from Lab 11
     res.json({status: 'success', message: 'Welcome!'});
 });
 
-// API ROUTES
+//Landing Page Route
+app.get('/', (req, res) => {
+
+  // Testing navbar component, session represents whether a user is logged in or not
+  res.render('pages/landing', {session: true})
+})
 
 // START SERVER
 // app.listen(3000);
