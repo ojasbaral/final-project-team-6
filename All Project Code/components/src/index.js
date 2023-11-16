@@ -140,10 +140,20 @@ app.post('/register', async (req, res) => {
       console.error('Error during registration:', error);
       res.status(400).render('pages/register', {session: (req.session.user?true:false), message: 'Email belongs to another account', error: true});
     }
-
-
-    
 });
+
+const auth = (req, res, next) => {
+  if (!req.session.user) {
+    // Default to login page.
+    return res.redirect('/login');
+  }
+  next();
+};
+
+// Authentication Required
+app.use(auth);
+
+// ENDPOINTS HERE
 
 // START SERVER
 // app.listen(3000);
