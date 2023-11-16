@@ -75,7 +75,7 @@ describe('Server!', () => {
       });
   });
 
-    it('negative : /register', done => {
+    it('negative : /login', done => {
     chai
       .request(server)
       .post('/register')
