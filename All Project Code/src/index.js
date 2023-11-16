@@ -5,7 +5,7 @@ const app = express();
 const pgp = require('pg-promise')(); // To connect to the Postgres DB from the node server
 const bodyParser = require('body-parser');
 const session = require('express-session'); // To set the session object. To store or access session data, use the `req.session`, which is (generally) serialized as JSON by the store.
-//const bcrypt = require('bcrypt'); //  To hash passwords //THIS IS CAUSING AN ERROR
+const bcrypt = require('bcrypt'); //  To hash passwords //THIS IS CAUSING AN ERROR
 
 // DATABASE CONFIGURATION
 
@@ -61,8 +61,70 @@ app.get('/welcome', (req, res) => { // sample test from Lab 11
 app.get('/', (req, res) => {
 
   // Testing navbar component, session represents whether a user is logged in or not
-  res.render('pages/landing', {session: true})
+  res.render('pages/landing', {session: (req.session.user?true:false)})
 })
+
+app.get('/login', (req, res) => {
+    res.render('pages/login', {session: (req.session.user?true:false)});
+});
+
+app.get('/register', (req, res) => {
+    res.render('pages/register',{session: (req.session.user?true:false)})
+});
+
+app.get('/logout', (req, res) => {
+    req.session.destroy();
+    res.render('pages/login', {session: false, message: 'Logged out Successfully!', error: false})
+});
+  
+app.post('/login', async (req, res) => {
+    const email = req.body.email;
+    const password = req.body.password;
+    const query = `SELECT * FROM users WHERE email = $1`;
+
+    try {
+        const user = await db.oneOrNone(query, email);
+
+        if (!user) { //user not found
+        res.redirect('/register');
+        } else { //check if password is correct
+        const match = await bcrypt.compare(password, user.password);
+
+        if (match) { //password match -> save user session and redirect
+            req.session.user = user;
+            req.session.save();
+            res.redirect('/');
+        } else {
+            res.render('pages/login', {session: (req.session.user?true:false), message: 'Incorrect username or password.', error: true});
+        }
+        }
+    } catch (error) {
+        console.error('Error during login:', error);
+        res.render('pages/login', {session: (req.session.user?true:false), message: 'Incorrect username or password.', error: true});
+    }
+});
+
+app.post('/register', async (req, res) => {
+    const hash = await bcrypt.hash(req.body.password, 10);
+    const user = {
+        email: req.body.email,
+        password: hash,
+    };
+    const query = `INSERT INTO users (email, password) VALUES ($1, $2) RETURNING *`;
+
+    try {
+        const insertResult = await db.oneOrNone(query, [user.email, user.password]);
+
+        if (insertResult) { // valid registration, redirect
+        res.redirect('/login');
+        } else {
+        res.render('pages/register', {session: (req.session.user?true:false), message: 'Email belongs to another account', error: true});
+        }
+    } catch (error) {
+        console.error('Error during registration:', error);
+        res.render('pages/register', {session: (req.session.user?true:false), message: 'Email belongs to another account', error: true});
+    }
+});
 
 // START SERVER
 // app.listen(3000);
