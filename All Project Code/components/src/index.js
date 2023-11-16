@@ -95,12 +95,12 @@ app.post('/login', async (req, res) => {
             req.session.save();
             res.redirect('/');
         } else {
-            res.render('pages/login', {session: (req.session.user?true:false), message: 'Incorrect username or password.', error: true});
+            res.status(400).render('pages/login', {session: (req.session.user?true:false), message: 'Incorrect username or password.', error: true});
         }
         }
     } catch (error) {
         console.error('Error during login:', error);
-        res.render('pages/login', {session: (req.session.user?true:false), message: 'Incorrect username or password.', error: true});
+        res.status(400).render('pages/login', {session: (req.session.user?true:false), message: 'Incorrect username or password.', error: true});
     }
 });
 

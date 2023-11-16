@@ -39,6 +39,7 @@ describe('Server!', () => {
       .redirects(0)
       .end((err, res) => {
         expect(res).to.have.status(302);
+        expect(res.redirect).to.equals(true);
         done();
       });
   });
@@ -51,6 +52,7 @@ describe('Server!', () => {
       .redirects(0)
       .end((err, res) => {
         expect(res).to.have.status(400);
+        expect(res.redirect).to.equals(false);
         done();
       });
   });
@@ -59,4 +61,31 @@ describe('Server!', () => {
 
   // ===========================================================================
   // TO-DO: Part A Login unit test case
+  describe('/login', () => {
+    it('positive : /login', done => {
+    chai
+      .request(server)
+      .post('/login')
+      .send({email: email, password: '12345678'})
+      .redirects(0)
+      .end((err, res) => {
+        expect(res).to.have.status(302);
+        expect(res.redirect).to.equals(true);
+        done();
+      });
+  });
+
+    it('negative : /register', done => {
+    chai
+      .request(server)
+      .post('/register')
+      .send({email: 'john.doe@example.com', password: '12345678'})
+      .redirects(0)
+      .end((err, res) => {
+        expect(res).to.have.status(400);
+        expect(res.redirect).to.equals(false);
+        done();
+      });
+  });
+  })
 });
