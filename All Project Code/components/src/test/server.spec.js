@@ -78,7 +78,7 @@ describe('Server!', () => {
     it('negative : /login', done => {
     chai
       .request(server)
-      .post('/register')
+      .post('/login')
       .send({email: 'john.doe@example.com', password: '12345678'})
       .redirects(0)
       .end((err, res) => {
