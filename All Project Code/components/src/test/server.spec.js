@@ -3,6 +3,10 @@
 const server = require('../index'); //TO-DO Make sure the path to your index.js is correctly added
 // Importing libraries
 
+//setting up random email for testing
+const tempInt = Math.floor(Math.random() * (1000000 - 1 + 1)) + 1;
+const email = `${tempInt}@gmail.com`
+
 // Chai HTTP provides an interface for live integration testing of the API's.
 const chai = require('chai');
 const chaiHttp = require('chai-http');
@@ -23,6 +27,35 @@ describe('Server!', () => {
         done();
       });
   });
+
+  // ===========================================================================
+  // Register Unit Test Case
+  describe('/register', () => {
+    it('positive : /register', done => {
+    chai
+      .request(server)
+      .post('/register')
+      .send({email: email, password: '12345678'})
+      .redirects(0)
+      .end((err, res) => {
+        expect(res).to.have.status(302);
+        done();
+      });
+  });
+
+    it('negative : /register', done => {
+    chai
+      .request(server)
+      .post('/register')
+      .send({email: 'john.doe@example.com', password: '12345678'})
+      .redirects(0)
+      .end((err, res) => {
+        expect(res).to.have.status(400);
+        done();
+      });
+  });
+  })
+
 
   // ===========================================================================
   // TO-DO: Part A Login unit test case
