@@ -86,21 +86,21 @@ app.post('/login', async (req, res) => {
         const user = await db.oneOrNone(query, email);
 
         if (!user) { //user not found
-        res.redirect('/register');
+            res.status(400).render('pages/login', {session: (req.session.user?true:false), message: 'User not found', error: true});
         } else { //check if password is correct
-        const match = await bcrypt.compare(password, user.password);
+            const match = await bcrypt.compare(password, user.password);
 
         if (match) { //password match -> save user session and redirect
             req.session.user = user;
             req.session.save();
             res.redirect('/');
         } else {
-            res.status(400).render('pages/login', {session: (req.session.user?true:false), message: 'Incorrect username or password.', error: true});
+            res.status(400).render('pages/login', {session: (req.session.user?true:false), message: 'Incorrect password', error: true});
         }
         }
     } catch (error) {
         console.error('Error during login:', error);
-        res.status(400).render('pages/login', {session: (req.session.user?true:false), message: 'Incorrect username or password.', error: true});
+        res.status(400).render('pages/login', {session: (req.session.user?true:false), message: 'Error during login!', error: true});
     }
 });
 
@@ -140,10 +140,20 @@ app.post('/register', async (req, res) => {
       console.error('Error during registration:', error);
       res.status(400).render('pages/register', {session: (req.session.user?true:false), message: 'Email belongs to another account', error: true});
     }
-
-
-    
 });
+
+const auth = (req, res, next) => {
+  if (!req.session.user) {
+    // Default to login page.
+    return res.redirect('/login');
+  }
+  next();
+};
+
+// Authentication Required
+app.use(auth);
+
+// ENDPOINTS HERE
 
 // START SERVER
 // app.listen(3000);
