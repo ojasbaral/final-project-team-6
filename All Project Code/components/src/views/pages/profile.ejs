@@ -1,0 +1,48 @@
+<%- include ('../partials/head') %>
+<%- include ('../partials/navbar') %>
+
+<main>
+    <div class="container">
+        <form action="/update-profile" method="post">
+            <!-- Bio -->
+            <div class="form-group">
+                <label for="bio">Bio:</label>
+                <input type="text" id="bio" name="bio" value="<%= bio %>">
+            </div>
+
+            <!-- Classes -->
+            <div class="form-group">
+                <label for="classes">Classes:</label>
+                <input type="text" id="classes" name="classes" value="<%= classes %>">
+            </div>
+
+            <!-- Times Available -->
+            <div class="form-group">
+                <label for="time_info">Times Available:</label>
+                <input type="text" id="time_info" name="time_info" value="<%= time_info %>">
+            </div>
+
+            <!-- Contact Info -->
+            <div class="form-group">
+                <label for="contact_info">Contact Info:</label>
+                <input type="text" id="contact_info" name="contact_info" value="<%= contact_info %>">
+            </div>
+
+            <!-- Tutor -->
+            <div class="form-group">
+                <label for="tutor">Tutor:</label>
+                <input type="text" id="tutor" name="tutor" value="<%= tutor %>">
+            </div>
+
+            <!-- Student -->
+            <div class="form-group">
+                <label for="student">Student:</label>
+                <input type="text" id="student" name="student" value="<%= student %>">
+            </div>
+
+            <button type="submit">Update Profile</button>
+        </form>
+    </div>
+</main>
+
+<%- include ('../partials/footer') %>

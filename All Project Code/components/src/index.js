@@ -51,6 +51,17 @@ app.use(
   })
 );
 
+const profileData = {
+  bio: undefined,
+  classes: undefined,
+  time_info: undefined,
+  contact_info: undefined,
+  tutor: undefined,
+  student: undefined,
+};
+
+
+
 // API ROUTES
 
 app.get('/welcome', (req, res) => { // sample test from Lab 11
@@ -76,7 +87,7 @@ app.get('/logout', (req, res) => {
     req.session.destroy();
     res.render('pages/login', {session: false, message: 'Logged out Successfully!', error: false})
 });
-  
+
 app.post('/login', async (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
@@ -101,7 +112,7 @@ app.post('/login', async (req, res) => {
     } catch (error) {
         console.error('Error during login:', error);
         res.status(400).render('pages/login', {session: (req.session.user?true:false), message: 'Incorrect username or password.', error: true});
-    }
+    }   
 });
 
 app.post('/register', async (req, res) => {
@@ -144,6 +155,35 @@ app.post('/register', async (req, res) => {
 
     
 });
+
+
+app.get('/profile', (req, res) => {
+  console.log('profileData:', profileData); // Log the profileData object
+
+  res.render('pages/profile', {
+    bio: profileData.bio || '',
+    classes: profileData.classes || '',
+    time_info: profileData.time_info || '',
+    contact_info: profileData.contact_info || '',
+    tutor: profileData.tutor || '',
+    student: profileData.student || '',
+    session: (req.session.user ? true : false),
+  });
+});
+
+
+app.post('/update-profile', (req, res) => {
+  profileData.bio = req.body.bio;
+  profileData.classes = req.body.classes;
+  profileData.time_info = req.body.time_info;
+  profileData.contact_info = req.body.contact_info;
+  profileData.tutor = req.body.tutor;
+  profileData.student = req.body.student;
+
+  res.redirect('/profile');
+});
+
+
 
 // START SERVER
 // app.listen(3000);
