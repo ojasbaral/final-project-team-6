@@ -157,8 +157,6 @@ app.get('/tutors', async (req, res) => {
     WHERE u.tutor = true;`;
 
     const tutors = await db.any(query);
-    console.log("AAAAAAAA");
-    console.log(tutors);
     res.render('pages/tutors', { session: req.session.user, tutors });
 
   } catch (error){
@@ -175,6 +173,7 @@ app.get('/profile', async (req, res) =>{
 
 app.post('/connect/tutor', async(req, res) => {
   //this should be changed to connecting tutor and user through the user_to_user table
+
   res.render('pages/landing', {session: (req.session.user?true:false)})
 });
 

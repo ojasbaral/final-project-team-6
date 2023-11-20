@@ -16,7 +16,6 @@
         
             <tbody>
             <%tutors.forEach(function(t){ %> 
-                <% //if (t.tutor == true){ %> 
                 <tr>
                     <td> <%= t.email %> </td>
                     <td>
@@ -28,14 +27,14 @@
                             <input type="hidden" name="user_id" value="<%=t.user_id %>">
                             <button type="submit">VIEW TUTOR</button>
                         </form>
-                    </td><td>
+                    </td>
+                    <td>
                         <form method="POST" action="/connect/tutor">
                             <input type="hidden" name="user_id" value="<%=t.user_id %>">
                             <button type="submit">BOOK TUTOR</button>
                         </form>
                     </td>
                 </tr>
-                <%// } %> 
             <% }) %>
             </tbody>
         </table>
