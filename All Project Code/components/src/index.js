@@ -115,7 +115,6 @@ app.post('/register', async (req, res) => {
     const valid_email = 'SELECT * FROM users WHERE email=$1'
     try {
       const checkResult = await db.oneOrNone(valid_email, user.email)
-
       if(checkResult){
          res.status(400).render('pages/register', {session: (req.session.user?true:false), message: 'Email belongs to another account', error: true});
       }else{
@@ -144,6 +143,41 @@ app.post('/register', async (req, res) => {
 
     
 });
+
+/*app.get('/tutors', (req, res) => {
+  res.render('pages/tutors',{session: (req.session.user?true:false)})
+});*/
+
+app.get('/tutors', async (req, res) => { 
+  try{
+    const query = `SELECT u.user_id, u.email, u.time_info, c.course_name 
+    FROM users u 
+    JOIN users_to_courses utc ON u.user_id = utc.user_id 
+    JOIN courses c ON utc.course_id = c.course_id 
+    WHERE u.tutor = true;`;
+
+    const tutors = await db.any(query);
+    console.log("AAAAAAAA");
+    console.log(tutors);
+    res.render('pages/tutors', { session: req.session.user, tutors });
+
+  } catch (error){
+
+    console.error('Error fetching tutors:', error);
+    res.ststus(500).render('pages/landing', {error});
+  }
+});
+
+app.get('/profile', async (req, res) =>{
+  //this should render the tutors profile page
+  res.render('pages/landing', {session: (req.session.user?true:false)})
+});
+
+app.post('/connect/tutor', async(req, res) => {
+  //this should be changed to connecting tutor and user through the user_to_user table
+  res.render('pages/landing', {session: (req.session.user?true:false)})
+});
+
 
 // START SERVER
 // app.listen(3000);
