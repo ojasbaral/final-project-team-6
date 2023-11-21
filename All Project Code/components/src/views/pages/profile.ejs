@@ -1,48 +1,155 @@
+<!-- EJS file - pages/profile.ejs -->
+
 <%- include ('../partials/head') %>
 <%- include ('../partials/navbar') %>
 
+
+<style>
+.container {
+    flex: 1; /* Make the container take up remaining vertical space */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+</style>
+
 <main>
     <div class="container">
-        <form action="/update-profile" method="post">
-            <!-- Bio -->
-            <div class="form-group">
-                <label for="bio">Bio:</label>
-                <input type="text" id="bio" name="bio" value="<%= bio %>">
-            </div>
 
-            <!-- Classes -->
-            <div class="form-group">
-                <label for="classes">Classes:</label>
-                <input type="text" id="classes" name="classes" value="<%= classes %>">
-            </div>
 
-            <!-- Times Available -->
-            <div class="form-group">
-                <label for="time_info">Times Available:</label>
-                <input type="text" id="time_info" name="time_info" value="<%= time_info %>">
-            </div>
+        <% if (editMode) { %>
+            <!-- Edit Mode -->
+            <form id="profileForm" action="/update-profile" method="post" class="<%= editMode ? 'edit-mode' : '' %>">
+                <!-- ... Your edit form fields ... -->
+                <h1>Populate Your Profile</h1>
+                <div class="form-group">
+                    <label for="bio">Bio:</label>
+                    <div class="textarea-container">
+                        <% if (editMode) { %>
+                            <textarea id="bio" name="bio" rows="4" cols="50"><%= bio %></textarea>
+                        <% } else { %>
+                            <span><%= bio %></span>
+                        <% } %>
+                    </div>
+                </div>
+                
+                
+                <!-- Classes -->
+                <div class="form-group">
+                    <label for="courses">Courses:</label>
+                    <select id="courses" name="courses" multiple>
+                        <% courses.forEach(course => { %>
+                            <option value="<%= course.course_id %>"><%= course.course_name %></option>
+                        <% }); %>
+                    </select>
+                </div>
 
-            <!-- Contact Info -->
-            <div class="form-group">
-                <label for="contact_info">Contact Info:</label>
-                <input type="text" id="contact_info" name="contact_info" value="<%= contact_info %>">
-            </div>
+                <!-- Times Available -->
+                <div class="form-group">
+                    <label for="time_info">Times Available:</label>
+                    <input type="text" id="time_info" name="time_info" value="<%= time_info %>">
+                </div>
 
-            <!-- Tutor -->
-            <div class="form-group">
-                <label for="tutor">Tutor:</label>
-                <input type="text" id="tutor" name="tutor" value="<%= tutor %>">
-            </div>
+                <!-- Contact Info -->
+                <div class="form-group">
+                    <label for="contact_info">Contact Info:</label>
+                    <input type="text" id="contact_info" name="contact_info" value="<%= contact_info %>">
+                </div>
 
-            <!-- Student -->
-            <div class="form-group">
-                <label for="student">Student:</label>
-                <input type="text" id="student" name="student" value="<%= student %>">
-            </div>
+                <!-- Tutor -->
+                <div class="form-group">
+                    <label for="tutor">Tutor:</label>
+                    <input type="text" id="tutor" name="tutor" value="<%= tutor %>">
+                </div>
 
-            <button type="submit">Update Profile</button>
-        </form>
+                <!-- Student -->
+                <div class="form-group">
+                    <label for="student">Student:</label>
+                    <input type="text" id="student" name="student" value="<%= student %>">
+                </div>
+            
+                <button type="submit" onclick="toggleEditMode()">Update Profile</button>
+            </form>
+        <% } else if(!editMode) { %>
+            <!-- View Mode -->
+            <table class="table table-bordered">
+                <!-- ... Your view table rows ... -->
+                <table class="table table-bordered">
+                    <tbody>
+                        <tr>
+                            <th>Bio</th>
+                            <td><%= bio %></td>
+                        </tr>
+                        <tr>
+                            <th>Classes</th>
+                            <td><%= courses %></td>
+                        </tr>
+                        <tr>
+                            <th>Times Available</th>
+                            <td><%= time_info %></td>
+                        </tr>
+                        <tr>
+                            <th>Contact Info</th>
+                            <td><%= contact_info %></td>
+                        </tr>
+                        <tr>
+                            <th>Tutor</th>
+                            <td><%= tutor %></td>
+                        </tr>
+                        <tr>
+                            <th>Student</th>
+                            <td><%= student %></td>
+                        </tr>
+                    </tbody>
+                </table>
+    
+            </table>
+            <button onclick="toggleEditMode()">Edit Profile</button>
+        <% } %>
+
+        <script>
+ var editMode = localStorage.getItem('editMode') === 'true';
+
+// Update the form and page content based on the edit mode
+if (editMode) {
+    console.log("Switched to Edit Mode");
+} else {
+    console.log("Switched to View Mode");
+}
+
+function toggleEditMode() {
+        editMode = !editMode;
+
+    /*
+    var profileForm = document.querySelector('#profileForm');
+            if (profileForm) {
+                profileForm.classList.toggle('edit-mode', editMode);
+            }*/
+    // Store the editMode state in local storage
+    localStorage.setItem('editMode', editMode);
+
+    // Reload the page only if transitioning from edit to view mode
+    
+        location.reload();
+    
+}           /*
+            document.getElementById('courses').addEventListener('change', function() {
+                if (this.value === 'addClasses') {
+                    // Logic to handle "Add Classes" selection
+                    // You may show a modal or perform other actions
+                    alert('Add Classes selected');
+                }
+            });*/
+       
+        
+        </script>
     </div>
 </main>
 
 <%- include ('../partials/footer') %>
+
+
+
+
+
+
