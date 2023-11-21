@@ -164,13 +164,14 @@ app.get('/profile/:id', async (req, res) => {
     //get the user from database
     const user = await db.oneOrNone(user_query, [req.params.id])
     const posts = await db.manyOrNone(posts_query, [req.params.id])
+    
     user_data = user
   } catch (e) {
     console.error('Error during rendering of profile page', e)
     res.status(400).render('pages/profile', {session: (req.session.user?true:false), message: 'There was an error, please try again', error: true, user: (req.session.user?req.session.user.user_id:false)});
   }
 
-  res.render('pages/profile', {session: (req.session.user?true:false), user: (req.session.user?req.session.user.user_id:false), user_data: user_data})
+  res.render('pages/profile', {session: (req.session.user?true:false), user: (req.session.user?req.session.user.user_id:false), user_data: user_data, edit_perms: (req.session.user.user_id==req.params.id?true:false)})
 })
 
 // START SERVER
