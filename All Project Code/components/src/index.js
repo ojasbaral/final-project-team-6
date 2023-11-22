@@ -53,14 +53,14 @@ app.use(
 
 const profileData = {
   bio: null,
-  classes: null,
-  time_info: null,
+  classes: [],
+  time_info: [],
   contact_info: null,
   tutor: null,
   student: null,
 };
-let editMode = true;
 
+let editMode = null;
 
 
 // API ROUTES
@@ -105,7 +105,7 @@ app.post('/login', async (req, res) => {
         if (match) { //password match -> save user session and redirect
             req.session.user = user;
             req.session.save();
-            res.redirect('/');
+            res.redirect('/profile');
         } else {
             res.status(400).render('pages/login', {session: (req.session.user?true:false), message: 'Incorrect username or password.', error: true});
         }
@@ -158,14 +158,16 @@ app.post('/register', async (req, res) => {
 });
 
 app.get('/profile', (req, res) => {
+
   console.log('profileData:', profileData); // Log the profileData object
+  const allTimes = ['8:00am', '9:00am','10:00am','11:00am','12:00pm','1:00pm','2:00pm','3:00pm','4:00pm','5:00pm','6:00pm','7:00pm','8:00pm'];
   const courses = [
-    { course_id: 1000, course_name: 'Computer Science as a Field of Work and Study', credit_hours: 1 },
-    { course_id: 1300, course_name: 'Introduction to Programming', credit_hours: 4},
-    { course_id: 1200, course_name: 'Introduction to computational thinking', credit_hours: 3},
-    { course_id: 2270, course_name: 'Data Structures', credit_hours:  4},
-    { course_id: 2400, course_name: 'Computer Systems', credit_hours:  4},
-    { course_id: 3308, course_name: 'Software Development Methods and Tools', credit_hours:  3},
+    { course_id:'CSCI 1000', course_name: 'Computer Science as a Field of Work and Study', credit_hours: 1 },
+    { course_id: 'CSCI 1300', course_name: 'Introduction to Programming', credit_hours: 4},
+    { course_id: 'CSCI 1200', course_name: 'Introduction to computational thinking', credit_hours: 3},
+    { course_id: 'CSCI 2270', course_name: 'Data Structures', credit_hours:  4},
+    { course_id: 'CSCI 2400', course_name: 'Computer Systems', credit_hours:  4},
+    { course_id: 'CSCI 3308', course_name: 'Software Development Methods and Tools', credit_hours:  3},
     { course_id: 2824, course_name: 'Discrete Structures', credit_hours:  3},
     { course_id: 3104, course_name: 'Algorithms', credit_hours:  4},
     { course_id: 3155, course_name: 'Principles of Programming Languages', credit_hours:  4},
@@ -183,14 +185,16 @@ app.get('/profile', (req, res) => {
     { course_id: 4502, course_name: 'Data Mining', credit_hours:  3},
   ];
 
-  res.render('pages/profile',/*{ profile: profileData, editMode },*/ {
+  res.render('pages/profile', {
     bio: profileData.bio,
     courses: courses,
-    time_info: profileData.time_info,
+    classes: Array.isArray(profileData.classes) ? profileData.classes : [],
+    time_info: Array.isArray(profileData.time_info) ? profileData.time_info : [],
     contact_info: profileData.contact_info,
     tutor: profileData.tutor,
     student: profileData.student,
     session: (req.session.user ? true : false),
+    allTimes: allTimes,
     editMode: editMode,
     
   });
@@ -202,6 +206,7 @@ app.post('/update-profile', (req, res) => {
   profileData.bio = req.body.bio;
   profileData.classes = req.body.classes;
   profileData.time_info = req.body.time_info;
+  profileData.allTimes = req.body.allTimes;
   profileData.contact_info = req.body.contact_info;
   profileData.tutor = req.body.tutor;
   profileData.student = req.body.student;

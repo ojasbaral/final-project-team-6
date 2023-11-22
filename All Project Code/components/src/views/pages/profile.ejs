@@ -2,7 +2,13 @@
 
 <%- include ('../partials/head') %>
 <%- include ('../partials/navbar') %>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+<!-- Include Select2 CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+
+<!-- Include Select2 JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
 <style>
 .container {
@@ -36,76 +42,109 @@
                 
                 <!-- Classes -->
                 <div class="form-group">
-                    <label for="courses">Courses:</label>
-                    <select id="courses" name="courses" multiple>
+                    <label for="classes" style="display: block;">Courses:</label>
+                    <select id="classes" name="classes[]" multiple class="select2">
+                        <option value="" disabled selected>Add Courses</option>
+
                         <% courses.forEach(course => { %>
-                            <option value="<%= course.course_id %>"><%= course.course_name %></option>
+                            <option value=" CSCI <%= course.course_id %> "><%= course.course_name %></option>
                         <% }); %>
                     </select>
                 </div>
 
                 <!-- Times Available -->
+                <!--<div class="form-group">
+                    <label for="day">Select Day:</label>
+                    <select id="day" name="day">
+                        <option value="Monday">Monday</option>
+                        <option value="Tuesday">Tuesday</option>
+                        <option value="Wednesday">Wednesday</option>
+                        <option value="Thursday">Thursday</option>
+                        <option value="Friday">Friday</option>
+                    </select>
+                </div> -->
+                
                 <div class="form-group">
-                    <label for="time_info">Times Available:</label>
-                    <input type="text" id="time_info" name="time_info" value="<%= time_info %>">
+                    
+                    <label for="time_info" style="display: block;">Times Available:</label>
+
+                    <select id="time_info" name="time_info[]" multiple class="select2" style="width: 160px">
+                        <option value="" disabled selected>Add Times</option>
+
+                        <% allTimes.forEach(time => { %>
+                            <option value="<%= time %>" <% if (time_info.includes(time)) { %>selected<% } %>><%= time %></option>
+                        <% }); %>
+                    </select>
                 </div>
+                
 
                 <!-- Contact Info -->
                 <div class="form-group">
-                    <label for="contact_info">Contact Info:</label>
-                    <input type="text" id="contact_info" name="contact_info" value="<%= contact_info %>">
+                    <label for="contact_info">Contact Information:</label>
+                    <div class="textarea-container">
+                        <% if (editMode) { %>
+                            <textarea id="contact_info" name="contact_info" rows="2" cols="30"><%= contact_info %></textarea>
+                        <% } else { %>
+                            <span><%= contact_info %></span>
+                        <% } %>
+                    </div>
                 </div>
 
                 <!-- Tutor -->
                 <div class="form-group">
                     <label for="tutor">Tutor:</label>
-                    <input type="text" id="tutor" name="tutor" value="<%= tutor %>">
+                    <input type="checkbox" id="tutor" name="tutor" <% if (tutor) { %>checked<% } %>>
+                    <label for="student">Student:</label>
+                    <input type="checkbox" id="student" name="student"<% if (student) { %>checked<% } %>>
+                    
                 </div>
 
-                <!-- Student -->
-                <div class="form-group">
-                    <label for="student">Student:</label>
-                    <input type="text" id="student" name="student" value="<%= student %>">
-                </div>
+
             
-                <button type="submit" onclick="toggleEditMode()">Update Profile</button>
+                <button type="submit" onclick="toggleEditMode()"class="btn btn-primary">Update Profile</button>
             </form>
         <% } else if(!editMode) { %>
             <!-- View Mode -->
-            <table class="table table-bordered">
                 <!-- ... Your view table rows ... -->
-                <table class="table table-bordered">
-                    <tbody>
-                        <tr>
-                            <th>Bio</th>
-                            <td><%= bio %></td>
-                        </tr>
-                        <tr>
-                            <th>Classes</th>
-                            <td><%= courses %></td>
-                        </tr>
-                        <tr>
-                            <th>Times Available</th>
-                            <td><%= time_info %></td>
-                        </tr>
-                        <tr>
-                            <th>Contact Info</th>
-                            <td><%= contact_info %></td>
-                        </tr>
-                        <tr>
-                            <th>Tutor</th>
-                            <td><%= tutor %></td>
-                        </tr>
-                        <tr>
-                            <th>Student</th>
-                            <td><%= student %></td>
-                        </tr>
-                    </tbody>
-                </table>
-    
-            </table>
-            <button onclick="toggleEditMode()">Edit Profile</button>
+                <form action="/profile">
+                    <div class="form-group">
+                        <table class="table table-bordered">
+                            <tbody>
+                                <tr>
+                                    <th>Bio</th>
+                                    <td><%= bio %></td>
+                                </tr>
+                                <tr>
+                                    <th>Classes</th>
+                                    <td><%= classes %></td>
+                                </tr>
+                                <tr>
+                                    <th>Times Available</th>
+                                    <td><%= time_info %></td>
+                                </tr>
+                                <tr>
+                                    <th>Contact Information</th>
+                                    <td><%= contact_info %></td>
+                                </tr>
+                                <tr>
+                                    <th>Tutor</th>
+                                    <td><%= tutor ? 'I am a tutor' : 'I am not a tutor' %></td>
+                                </tr>
+                                <tr>
+                                    <th>Student</th>
+                                    <td><%= student ? 'I am a student' : 'I am not a student' %></td>
+                                </tr>
+                            </tbody>
+        
+                        </table>
+                    </div>
+                    <button type="submit" onclick="toggleEditMode()"class="btn btn-primary">Edit Profile</button>
+
+                </form>
+
+
         <% } %>
+    </div>
 
         <script>
  var editMode = localStorage.getItem('editMode') === 'true';
@@ -116,6 +155,61 @@ if (editMode) {
 } else {
     console.log("Switched to View Mode");
 }
+/*
+$(document).ready(function() {
+        $('.select2').select2();
+    });*/
+
+    $(document).ready(function() {
+        /*
+        $('#day').select2({
+            placeholder: "Select a day",
+        });*/
+        var timeInfoSelect = $('#time_info');
+        
+        timeInfoSelect.select2({
+            tags: true,  // Allow custom tags
+            tokenSeparators: [','],  // Define separators between tokens
+            placeholder: "Add Times"
+        });
+        timeInfoSelect.on('select2:open', function() {
+            // Remove the default option when the dropdown is open
+            timeInfoSelect.find('option[value=""]').remove();
+        });
+
+        timeInfoSelect.on('select2:close', function() {
+            // If no option is selected, add the default option back
+            if (timeInfoSelect.val() == null || timeInfoSelect.val().length === 0) {
+                timeInfoSelect.prepend('<option value="" disabled selected>Add Times</option>');
+            }
+        });
+        
+
+
+        // Initialize Select2
+        //timeInfoSelect.select2();
+    });
+    $(document).ready(function() {
+            var courseSelect = $('#classes')
+            courseSelect.select2({
+                tags: true,  // Allow custom tags
+                tokenSeparators: [','],  // Define separators between tokens
+                placeholder: "Add Courses",
+            });
+            courseSelect.on('select2:open', function(){
+                courseSelect.find('option[value="').remove();
+            });
+            courseSelect.on('select2:close', function() {
+            // If no option is selected, add the default option back
+            if (courseSelect.val() == null || courseSelect.val().length === 0) {
+                courseSelect.prepend('<option value="" disabled selected>Add Course</option>');
+            }
+        });
+        //courseSelect.select2();
+    });
+
+  
+
 
 function toggleEditMode() {
         editMode = !editMode;
@@ -143,7 +237,6 @@ function toggleEditMode() {
        
         
         </script>
-    </div>
 </main>
 
 <%- include ('../partials/footer') %>
