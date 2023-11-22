@@ -11,12 +11,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
 <style>
-.container {
-    flex: 1; /* Make the container take up remaining vertical space */
+/* .container {
+    flex: 1; /* Make the container take up remaining vertical space 
     display: flex;
     align-items: center;
     justify-content: center;
-}
+}*/
 </style>
 
 <main>
@@ -67,14 +67,62 @@
                 <div class="form-group">
                     
                     <label for="time_info" style="display: block;">Times Available:</label>
+                    <table>
+                        <tr>
+                          <th>Day</th>
+                          <th>Times</th>
+                        </tr>
+                        <tr>
+                          <td>Monday
+                            <select id="monday_time_info" name="monday_time_info[]" multiple class="select2" style="width: 160px">
+                                <option value="" disabled selected>Add Times</option>
+        
+                                <% allTimes.forEach(time => { %>
+                                    <option value="<%= time %>" <% if (monday_time_info.includes(time)) { %>selected<% } %>><%= time %></option>
+                                <% }); %>
+                            </select>
+                          </td>
+                          <td>Tuesday
+                            <select id="tuesday_time_info" name="tuesday_time_info[]" multiple class="select2" style="width: 160px">
+                                <option value="" disabled selected>Add Times</option>
+        
+                                <% allTimes.forEach(time => { %>
+                                    <option value="<%= time %>" <% if (tuesday_time_info.includes(time)) { %>selected<% } %>><%= time %></option>
+                                <% }); %>
+                            </select>
+                          </td>
+                          <td>Wednesday
+                            <select id="wednesday_time_info" name="wednesday_time_info[]" multiple class="select2" style="width: 160px">
+                                <option value="" disabled selected>Add Times</option>
+        
+                                <% allTimes.forEach(time => { %>
+                                    <option value="<%= time %>" <% if (wednesday_time_info.includes(time)) { %>selected<% } %>><%= time %></option>
+                                <% }); %>
+                            </select>
+                          </td>
+                          <td>Thursday
+                            <select id="thursday_time_info" name="thursday_time_info[]" multiple class="select2" style="width: 160px">
+                                <option value="" disabled selected>Add Times</option>
+        
+                                <% allTimes.forEach(time => { %>
+                                    <option value="<%= time %>" <% if (thursday_time_info.includes(time)) { %>selected<% } %>><%= time %></option>
+                                <% }); %>
+                            </select>
+                          </td>
+                          <td>Friday
+                          
+                            <select id="friday_time_info" name="friday_time_info[]" multiple class="select2" style="width: 160px">
+                                <option value="" disabled selected>Add Times</option>
+        
+                                <% allTimes.forEach(time => { %>
+                                    <option value="<%= time %>" <% if (friday_time_info.includes(time)) { %>selected<% } %>><%= time %></option>
+                                <% }); %>
+                            </select>
+                          </td>
+                        </tr>
 
-                    <select id="time_info" name="time_info[]" multiple class="select2" style="width: 160px">
-                        <option value="" disabled selected>Add Times</option>
+                      </table>
 
-                        <% allTimes.forEach(time => { %>
-                            <option value="<%= time %>" <% if (time_info.includes(time)) { %>selected<% } %>><%= time %></option>
-                        <% }); %>
-                    </select>
                 </div>
                 
 
@@ -108,6 +156,10 @@
                 <!-- ... Your view table rows ... -->
                 <form action="/profile">
                     <div class="form-group">
+                        <div style="text-align: center;">
+                            <h2><%= userEmail %>'s Profile</h2>
+
+                        </div>
                         <table class="table table-bordered">
                             <tbody>
                                 <tr>
@@ -118,9 +170,26 @@
                                     <th>Classes</th>
                                     <td><%= classes %></td>
                                 </tr>
+   
                                 <tr>
                                     <th>Times Available</th>
-                                    <td><%= time_info %></td>
+                                    <td colspan="5">
+                                        <table class="inner-table">
+                                            <% ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].forEach(day => { %>
+                                                <% const times = eval(day.toLowerCase() + '_time_info'); %>
+                                                <% if (times && times.length > 0) { %>
+                                                    <tr>
+                                                        <th><%= day %>: </th>
+                                                        <td>
+                                                            <!-- Your times dropdown or other content -->
+                                                            <%= times %>
+                                                        </td>
+                                                    </tr>
+                                                <% } %>
+                                            <% }); %>
+                                        </table>
+                                    </td>
+                                    
                                 </tr>
                                 <tr>
                                     <th>Contact Information</th>
@@ -155,17 +224,11 @@ if (editMode) {
 } else {
     console.log("Switched to View Mode");
 }
-/*
-$(document).ready(function() {
-        $('.select2').select2();
-    });*/
+
 
     $(document).ready(function() {
-        /*
-        $('#day').select2({
-            placeholder: "Select a day",
-        });*/
-        var timeInfoSelect = $('#time_info');
+
+        var timeInfoSelect = $('#monday_time_info');
         
         timeInfoSelect.select2({
             tags: true,  // Allow custom tags
@@ -184,11 +247,123 @@ $(document).ready(function() {
             }
         });
         
-
-
-        // Initialize Select2
-        //timeInfoSelect.select2();
     });
+    $(document).ready(function() {
+
+        var timeInfoSelect = $('#tuesday_time_info');
+
+        timeInfoSelect.select2({
+            tags: true,  // Allow custom tags
+            tokenSeparators: [','],  // Define separators between tokens
+            placeholder: "Add Times"
+        });
+        timeInfoSelect.on('select2:open', function() {
+            // Remove the default option when the dropdown is open
+            timeInfoSelect.find('option[value=""]').remove();
+        });
+
+        timeInfoSelect.on('select2:close', function() {
+            // If no option is selected, add the default option back
+            if (timeInfoSelect.val() == null || timeInfoSelect.val().length === 0) {
+                timeInfoSelect.prepend('<option value="" disabled selected>Add Times</option>');
+            }
+        });
+
+    });
+
+    $(document).ready(function() {
+
+        var timeInfoSelect = $('#tuesday_time_info');
+
+        timeInfoSelect.select2({
+            tags: true,  // Allow custom tags
+            tokenSeparators: [','],  // Define separators between tokens
+            placeholder: "Add Times"
+        });
+        timeInfoSelect.on('select2:open', function() {
+            // Remove the default option when the dropdown is open
+            timeInfoSelect.find('option[value=""]').remove();
+        });
+
+        timeInfoSelect.on('select2:close', function() {
+            // If no option is selected, add the default option back
+            if (timeInfoSelect.val() == null || timeInfoSelect.val().length === 0) {
+                timeInfoSelect.prepend('<option value="" disabled selected>Add Times</option>');
+            }
+        });
+
+    });
+
+    $(document).ready(function() {
+
+        var timeInfoSelect = $('#wednesday_time_info');
+
+        timeInfoSelect.select2({
+            tags: true,  // Allow custom tags
+            tokenSeparators: [','],  // Define separators between tokens
+            placeholder: "Add Times"
+        });
+        timeInfoSelect.on('select2:open', function() {
+            // Remove the default option when the dropdown is open
+            timeInfoSelect.find('option[value=""]').remove();
+        });
+
+        timeInfoSelect.on('select2:close', function() {
+            // If no option is selected, add the default option back
+            if (timeInfoSelect.val() == null || timeInfoSelect.val().length === 0) {
+                timeInfoSelect.prepend('<option value="" disabled selected>Add Times</option>');
+            }
+        });
+
+    });
+
+    $(document).ready(function() {
+
+        var timeInfoSelect = $('#thursday_time_info');
+
+        timeInfoSelect.select2({
+            tags: true,  // Allow custom tags
+            tokenSeparators: [','],  // Define separators between tokens
+            placeholder: "Add Times"
+        });
+        timeInfoSelect.on('select2:open', function() {
+            // Remove the default option when the dropdown is open
+            timeInfoSelect.find('option[value=""]').remove();
+        });
+
+        timeInfoSelect.on('select2:close', function() {
+            // If no option is selected, add the default option back
+            if (timeInfoSelect.val() == null || timeInfoSelect.val().length === 0) {
+                timeInfoSelect.prepend('<option value="" disabled selected>Add Times</option>');
+            }
+        });
+
+    });
+
+    $(document).ready(function() {
+
+        var timeInfoSelect = $('#friday_time_info');
+
+        timeInfoSelect.select2({
+            tags: true,  // Allow custom tags
+            tokenSeparators: [','],  // Define separators between tokens
+            placeholder: "Add Times"
+        });
+        timeInfoSelect.on('select2:open', function() {
+            // Remove the default option when the dropdown is open
+            timeInfoSelect.find('option[value=""]').remove();
+        });
+
+        timeInfoSelect.on('select2:close', function() {
+            // If no option is selected, add the default option back
+            if (timeInfoSelect.val() == null || timeInfoSelect.val().length === 0) {
+                timeInfoSelect.prepend('<option value="" disabled selected>Add Times</option>');
+            }
+        });
+
+    });
+
+
     $(document).ready(function() {
             var courseSelect = $('#classes')
             courseSelect.select2({
@@ -205,7 +380,6 @@ $(document).ready(function() {
                 courseSelect.prepend('<option value="" disabled selected>Add Course</option>');
             }
         });
-        //courseSelect.select2();
     });
 
   

@@ -54,13 +54,17 @@ app.use(
 const profileData = {
   bio: null,
   classes: [],
-  time_info: [],
+  monday_time_info: [],
+  tuesday_time_info: [],
+  wednesday_time_info: [],
+  thursday_time_info: [],
+  friday_time_info: [],
   contact_info: null,
   tutor: null,
   student: null,
 };
 
-let editMode = null;
+let editMode = false;
 
 
 // API ROUTES
@@ -157,47 +161,64 @@ app.post('/register', async (req, res) => {
     
 });
 
-app.get('/profile', (req, res) => {
+app.get('/profile', async(req, res) => {
 
-  console.log('profileData:', profileData); // Log the profileData object
-  const allTimes = ['8:00am', '9:00am','10:00am','11:00am','12:00pm','1:00pm','2:00pm','3:00pm','4:00pm','5:00pm','6:00pm','7:00pm','8:00pm'];
-  const courses = [
-    { course_id:'CSCI 1000', course_name: 'Computer Science as a Field of Work and Study', credit_hours: 1 },
-    { course_id: 'CSCI 1300', course_name: 'Introduction to Programming', credit_hours: 4},
-    { course_id: 'CSCI 1200', course_name: 'Introduction to computational thinking', credit_hours: 3},
-    { course_id: 'CSCI 2270', course_name: 'Data Structures', credit_hours:  4},
-    { course_id: 'CSCI 2400', course_name: 'Computer Systems', credit_hours:  4},
-    { course_id: 'CSCI 3308', course_name: 'Software Development Methods and Tools', credit_hours:  3},
-    { course_id: 2824, course_name: 'Discrete Structures', credit_hours:  3},
-    { course_id: 3104, course_name: 'Algorithms', credit_hours:  4},
-    { course_id: 3155, course_name: 'Principles of Programming Languages', credit_hours:  4},
-    { course_id: 3287, course_name: 'Design and Analysis of Database systems', credit_hours:  3},
-    { course_id: 3753, course_name: 'Design and Analysis of Operating systems', credit_hours:  4},
-    { course_id: 2820, course_name: 'Linear Algebra with Computer Science Applications', credit_hours:  3},
-    { course_id: 3202, course_name: 'Introduction to Artificial Intelligence', credit_hours:  3},
-    { course_id: 3022, course_name: 'Introduction to Data Science', credit_hours:  3},
-    { course_id: 3002, course_name: 'Fundamentals of Human Computer Interaction', credit_hours:  4},
-    { course_id: 3010, course_name: 'Intensive Programming Workshop', credit_hours:  3},
-    { course_id: 4253, course_name: 'Data Center Scale Computing', credit_hours:  3},
-    { course_id: 4273, course_name: 'Network Systems', credit_hours:  3},
-    { course_id: 4308, course_name: 'Software Engineering Project 1', credit_hours:  4},
-    { course_id: 4448, course_name: 'Object-Oriented Analysis and Design', credit_hours:  3},
-    { course_id: 4502, course_name: 'Data Mining', credit_hours:  3},
-  ];
+  try{
+    const userId = req.session.user.user_id;
 
-  res.render('pages/profile', {
-    bio: profileData.bio,
-    courses: courses,
-    classes: Array.isArray(profileData.classes) ? profileData.classes : [],
-    time_info: Array.isArray(profileData.time_info) ? profileData.time_info : [],
-    contact_info: profileData.contact_info,
-    tutor: profileData.tutor,
-    student: profileData.student,
-    session: (req.session.user ? true : false),
-    allTimes: allTimes,
-    editMode: editMode,
-    
-  });
+    // Fetch user email from the database
+    const userEmailQuery = `SELECT email FROM users WHERE user_id = $1`;
+    const userEmailResult = await db.oneOrNone(userEmailQuery, userId);
+    const userEmail = userEmailResult ? userEmailResult.email : '';
+
+    console.log('profileData:', profileData); // Log the profileData object
+    const allTimes = ['8:00am', '9:00am','10:00am','11:00am','12:00pm','1:00pm','2:00pm','3:00pm','4:00pm','5:00pm','6:00pm','7:00pm','8:00pm'];
+    const courses = [
+      { course_id: 1000, course_name: 'Computer Science as a Field of Work and Study', credit_hours: 1 },
+      { course_id: 1300, course_name: 'Introduction to Programming', credit_hours: 4},
+      { course_id: 1200, course_name: 'Introduction to computational thinking', credit_hours: 3},
+      { course_id: 2270, course_name: 'Data Structures', credit_hours:  4},
+      { course_id: 2400, course_name: 'Computer Systems', credit_hours:  4},
+      { course_id: 3308, course_name: 'Software Development Methods and Tools', credit_hours:  3},
+      { course_id: 2824, course_name: 'Discrete Structures', credit_hours:  3},
+      { course_id: 3104, course_name: 'Algorithms', credit_hours:  4},
+      { course_id: 3155, course_name: 'Principles of Programming Languages', credit_hours:  4},
+      { course_id: 3287, course_name: 'Design and Analysis of Database systems', credit_hours:  3},
+      { course_id: 3753, course_name: 'Design and Analysis of Operating systems', credit_hours:  4},
+      { course_id: 2820, course_name: 'Linear Algebra with Computer Science Applications', credit_hours:  3},
+      { course_id: 3202, course_name: 'Introduction to Artificial Intelligence', credit_hours:  3},
+      { course_id: 3022, course_name: 'Introduction to Data Science', credit_hours:  3},
+      { course_id: 3002, course_name: 'Fundamentals of Human Computer Interaction', credit_hours:  4},
+      { course_id: 3010, course_name: 'Intensive Programming Workshop', credit_hours:  3},
+      { course_id: 4253, course_name: 'Data Center Scale Computing', credit_hours:  3},
+      { course_id: 4273, course_name: 'Network Systems', credit_hours:  3},
+      { course_id: 4308, course_name: 'Software Engineering Project 1', credit_hours:  4},
+      { course_id: 4448, course_name: 'Object-Oriented Analysis and Design', credit_hours:  3},
+      { course_id: 4502, course_name: 'Data Mining', credit_hours:  3},
+    ];
+  
+    res.render('pages/profile', {
+      bio: profileData.bio,
+      courses: courses,
+      classes: Array.isArray(profileData.classes) ? profileData.classes : [],
+      monday_time_info: Array.isArray(profileData.monday_time_info) ? profileData.monday_time_info : [],
+      tuesday_time_info: Array.isArray(profileData.tuesday_time_info) ? profileData.tuesday_time_info : [],
+      wednesday_time_info: Array.isArray(profileData.wednesday_time_info) ? profileData.wednesday_time_info : [],
+      thursday_time_info: Array.isArray(profileData.thursday_time_info) ? profileData.thursday_time_info : [],
+      friday_time_info: Array.isArray(profileData.friday_time_info) ? profileData.friday_time_info : [],
+      contact_info: profileData.contact_info,
+      tutor: profileData.tutor,
+      student: profileData.student,
+      session: (req.session.user ? true : false),
+      allTimes: allTimes,
+      editMode: editMode,
+      userEmail: userEmail,
+      
+    });
+  }catch (error) {
+    console.error('Error fetching user data:', error);
+    res.status(500).send('Internal Server Error');
+  }
   editMode = true;
 });
 
@@ -205,13 +226,17 @@ app.get('/profile', (req, res) => {
 app.post('/update-profile', (req, res) => {
   profileData.bio = req.body.bio;
   profileData.classes = req.body.classes;
-  profileData.time_info = req.body.time_info;
+  profileData.monday_time_info = req.body.monday_time_info;
+  profileData.tuesday_time_info = req.body.tuesday_time_info;
+  profileData.wednesday_time_info = req.body.wednesday_time_info;
+  profileData.thursday_time_info = req.body.thursday_time_info;
+  profileData.friday_time_info = req.body.friday_time_info;
   profileData.allTimes = req.body.allTimes;
   profileData.contact_info = req.body.contact_info;
   profileData.tutor = req.body.tutor;
   profileData.student = req.body.student;
-  editMode = false;
   res.redirect('/profile');
+  editMode = false;
 });
 
 
