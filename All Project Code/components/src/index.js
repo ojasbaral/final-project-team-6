@@ -144,9 +144,53 @@ app.post('/register', async (req, res) => {
     
 });
 
-/*app.get('/tutors', (req, res) => {
-  res.render('pages/tutors',{session: (req.session.user?true:false)})
-});*/
+app.get('/students/search', async (req, res) => {
+  const nameSearch = req.query.nameSearch || '';
+  const courseSearch = req.query.courseSearch || '';
+  const timeSearch = req.query.timeSearch || '';
+  try{
+    const query = `SELECT u.user_id, u.email, u.time_info, c.course_name
+    FROM users u 
+    JOIN users_to_courses utc ON u.user_id = utc.user_id 
+    JOIN courses c ON utc.course_id = c.course_id 
+    WHERE u.student = true
+    AND u.email ILIKE $1 AND c.course_name ILIKE $2 AND u.time_info ILIKE $3;`;
+    const students = await db.any(query, [`%${nameSearch}%`, `%${courseSearch}%`, `%${timeSearch}%`]);
+    //console.log({nameSearch}, {courseSearch}, {timeSearch});
+    //console.log(students);
+    res.render('pages/students',{session: req.session.user, students});
+
+  } 
+  catch (error){
+    console.error('Error during serach:', error);
+    res.status(500).render('pages/students', {session: req.session.user, error});
+  }
+});
+
+
+app.get('/tutors/search', async (req, res) => {
+  const nameSearch = req.query.nameSearch || '';
+  const courseSearch = req.query.courseSearch || '';
+  const timeSearch = req.query.timeSearch || '';
+  try{
+    const query = `SELECT u.user_id, u.email, u.time_info, c.course_name
+    FROM users u 
+    JOIN users_to_courses utc ON u.user_id = utc.user_id 
+    JOIN courses c ON utc.course_id = c.course_id 
+    WHERE u.tutor = true
+    AND u.email ILIKE $1 AND c.course_name ILIKE $2 AND u.time_info ILIKE $3;`;
+    const tutors = await db.any(query, [`%${nameSearch}%`, `%${courseSearch}%`, `%${timeSearch}%`]);
+    //console.log({nameSearch}, {courseSearch}, {timeSearch});
+    //console.log(tutors);
+    res.render('pages/tutors',{session: req.session.user, tutors});
+
+  } 
+  catch (error){
+    console.error('Error during serach:', error);
+    res.status(500).render('pages/students', {session: req.session.user, error});
+  }
+});
+
 
 app.get('/tutors', async (req, res) => { 
   try{
@@ -166,8 +210,31 @@ app.get('/tutors', async (req, res) => {
   }
 });
 
+app.get('/students', async (req, res) => { 
+  try{
+    const query = `SELECT u.user_id, u.email, u.time_info, c.course_name 
+    FROM users u 
+    JOIN users_to_courses utc ON u.user_id = utc.user_id 
+    JOIN courses c ON utc.course_id = c.course_id 
+    WHERE u.student = true;`;
+
+    const students = await db.any(query);
+    res.render('pages/students', { session: req.session.user, students });
+
+  } catch (error){
+
+    console.error('Error during serach:', error);
+    res.ststus(500).render('pages/students', { session: req.session.user, error });
+  }
+});
+
 app.get('/profile', async (req, res) =>{
   //this should render the tutors profile page
+  res.render('pages/landing', {session: (req.session.user?true:false)})
+});
+
+app.post('/connect/student', async(req, res) => {
+  //we could get rid of this or have it link to a messaging platform 
   res.render('pages/landing', {session: (req.session.user?true:false)})
 });
 

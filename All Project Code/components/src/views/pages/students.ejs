@@ -6,10 +6,10 @@
 
         <%- include ('../partials/message') %>
         
-        <h2 style="margin-top: 15px;">Tutors</h2>
+        <h2 style="margin-top: 15px;">Students</h2>
         <nav class="navbar bg-body-tertiary">
             <div class="container-fluid">
-              <form class="d-flex" action="/tutors/search" method="GET">
+              <form class="d-flex" action="/students/search" method="GET">
                 <input class="form-control me-2" type="text" name="nameSearch" placeholder="Name" aria-label="nameSearch">
                 <input class="form-control me-2" type="text" name="courseSearch" placeholder="Course" aria-label="courseSearch">
                 <input class="form-control me-2" type="text" name="timeSearch" placeholder="Time" aria-label="timeSearch">
@@ -32,29 +32,29 @@
           </nav>
         <table class="table">
             <thead>
-                <th> Tutor Email </th>
+                <th> Student Email </th>
                 <th> Course Names </th>
                 <th> Time available </th>
             </thead>
         
             <tbody>
-            <%tutors.forEach(function(t){ %> 
+            <% students.forEach(function(s){ %> 
                 <tr>
-                    <td> <%= t.email %> </td>
+                    <td> <%= s.email %> </td>
                     <td>
-                        <%= t.course_name %>
+                        <%= s.course_name %>
                     </td>
-                    <td> <%= t.time_info %> </td>
+                    <td> <%= s.time_info %> </td>
                     <td>
                         <form method="GIT" action="/profile">
-                            <input type="hidden" name="user_id" value="<%=t.user_id %>">
-                            <button type="submit">VIEW TUTOR</button>
+                            <input type="hidden" name="user_id" value="<%=s.user_id %>">
+                            <button type="submit">VIEW STUDENT</button>
                         </form>
                     </td>
                     <td>
-                        <form method="POST" action="/connect/tutor">
-                            <input type="hidden" name="user_id" value="<%=t.user_id %>">
-                            <button type="submit">BOOK TUTOR</button>
+                        <form method="POST" action="/connect/student">
+                            <input type="hidden" name="user_id" value="<%=s.user_id %>">
+                            <button type="submit">CONNECT WITH STUDENT</button>
                         </form>
                     </td>
                 </tr>
