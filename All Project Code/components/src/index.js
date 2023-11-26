@@ -51,6 +51,21 @@ app.use(
   })
 );
 
+async function updateUser(userId, updatedFields) {
+  try {
+    const updateFields = Object.keys(updatedFields).map((field, index) => `${field} = $${index + 1}`).join(', ');
+    const updateValues = Object.values(updatedFields);
+
+    const query = `UPDATE users SET ${updateFields} WHERE user_id = $${updateValues.length + 1}`;
+    await db.none(query, updateValues.concat(userId));
+  } catch (error) {
+    console.error('Error updating user:', error);
+    throw error;
+  }
+};
+
+
+
 const profileData = {
   bio: null,
   classes: [],
@@ -170,8 +185,7 @@ app.get('/profile', async(req, res) => {
     const userEmailQuery = `SELECT email FROM users WHERE user_id = $1`;
     const userEmailResult = await db.oneOrNone(userEmailQuery, userId);
     const userEmail = userEmailResult ? userEmailResult.email : '';
-
-    console.log('profileData:', profileData); // Log the profileData object
+     console.log('profileData:', profileData); // Log the profileData object
     const allTimes = ['8:00am', '9:00am','10:00am','11:00am','12:00pm','1:00pm','2:00pm','3:00pm','4:00pm','5:00pm','6:00pm','7:00pm','8:00pm'];
     const courses = [
       { course_id: 1000, course_name: 'Computer Science as a Field of Work and Study', credit_hours: 1 },
@@ -198,7 +212,7 @@ app.get('/profile', async(req, res) => {
     ];
   
     res.render('pages/profile', {
-      bio: profileData.bio,
+      bio: req.session.user.bio,
       courses: courses,
       classes: Array.isArray(profileData.classes) ? profileData.classes : [],
       monday_time_info: Array.isArray(profileData.monday_time_info) ? profileData.monday_time_info : [],
@@ -206,9 +220,9 @@ app.get('/profile', async(req, res) => {
       wednesday_time_info: Array.isArray(profileData.wednesday_time_info) ? profileData.wednesday_time_info : [],
       thursday_time_info: Array.isArray(profileData.thursday_time_info) ? profileData.thursday_time_info : [],
       friday_time_info: Array.isArray(profileData.friday_time_info) ? profileData.friday_time_info : [],
-      contact_info: profileData.contact_info,
-      tutor: profileData.tutor,
-      student: profileData.student,
+      contact_info: req.session.user.contact_info,
+      tutor: req.session.user.tutor,
+      student: req.session.user.student,
       session: (req.session.user ? true : false),
       allTimes: allTimes,
       editMode: editMode,
@@ -235,6 +249,35 @@ app.post('/update-profile', (req, res) => {
   profileData.contact_info = req.body.contact_info;
   profileData.tutor = req.body.tutor;
   profileData.student = req.body.student;
+
+  req.session.user.bio = profileData.bio;
+  req.session.user.contact_info = profileData.contact_info;
+  req.session.user.tutor = profileData.tutor;
+  req.session.user.student = profileData.student;
+
+  
+  const timeInfoString = `
+  Monday: ${profileData.monday_time_info},
+  Tuesday: ${profileData.tuesday_time_info},
+  Wednesday: ${profileData.wednesday_time_info},
+  Thursday: ${profileData.thursday_time_info},
+  Friday: ${profileData.friday_time_info}
+`.trim();
+req.session.user.time_info = timeInfoString;
+
+  const updatedFields = {
+    bio: profileData.bio,
+    time_info: timeInfoString,
+    contact_info: profileData.contact_info,
+    tutor: profileData.tutor,
+    student: profileData.student
+
+
+  };
+
+  const userId = req.session.user.user_id;
+  updateUser(userId, updatedFields);
+  
   res.redirect('/profile');
   editMode = false;
 });
