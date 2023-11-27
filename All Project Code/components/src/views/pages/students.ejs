@@ -7,6 +7,9 @@
         <%- include ('../partials/message') %>
         
         <h2 style="margin-top: 15px;">Students</h2>
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <button class="btn btn-success me-md-2" href="/addPost/student" type="button">Create post</button>
+        </div>
         <nav class="navbar bg-body-tertiary">
             <div class="container-fluid">
               <form class="d-flex" action="/students/search" method="GET">
