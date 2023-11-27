@@ -7,6 +7,9 @@
         <%- include ('../partials/message') %>
         
         <h2 style="margin-top: 15px;">Tutors</h2>
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <button class="btn btn-success me-md-2" href="/addPost/tutoring" type="button">Create post</button>
+        </div>
         <nav class="navbar bg-body-tertiary">
             <div class="container-fluid">
               <form class="d-flex" action="/tutors/search" method="GET">
@@ -52,10 +55,16 @@
                         </form>
                     </td>
                     <td>
-                        <form method="POST" action="/connect/tutor">
-                            <input type="hidden" name="user_id" value="<%=t.user_id %>">
-                            <button type="submit">BOOK TUTOR</button>
-                        </form>
+                        <% if (t.isConnected) { %>
+                            <form method="POST" action="/upvote/<%= t.post_id %>">
+                                <button type="submit">UPVOTE</button>
+                            </form>
+                        <% } else { %>
+                            <form method="POST" action="/connect/tutor">
+                                <input type="hidden" name="user_id" value="<%= t.user_id %>">
+                                <button type="submit">BOOK TUTOR</button>
+                            </form>
+                        <% } %>    
                     </td>
                 </tr>
             <% }) %>

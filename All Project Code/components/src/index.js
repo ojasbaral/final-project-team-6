@@ -153,11 +153,11 @@ app.get('/students/search', async (req, res) => {
     FROM users u 
     JOIN users_to_courses utc ON u.user_id = utc.user_id 
     JOIN courses c ON utc.course_id = c.course_id 
-    WHERE u.student = true
+    WHERE u.student = true AND utc.tutoring = false 
     AND u.email ILIKE $1 AND c.course_name ILIKE $2 AND u.time_info ILIKE $3;`;
     const students = await db.any(query, [`%${nameSearch}%`, `%${courseSearch}%`, `%${timeSearch}%`]);
     //console.log({nameSearch}, {courseSearch}, {timeSearch});
-    //console.log(students);
+    //console.log(students);  && utc.tutoring = true
     res.render('pages/students',{session: req.session.user, students});
 
   } 
@@ -177,7 +177,7 @@ app.get('/tutors/search', async (req, res) => {
     FROM users u 
     JOIN users_to_courses utc ON u.user_id = utc.user_id 
     JOIN courses c ON utc.course_id = c.course_id 
-    WHERE u.tutor = true
+    WHERE u.tutor = true AND utc.tutoring = true
     AND u.email ILIKE $1 AND c.course_name ILIKE $2 AND u.time_info ILIKE $3;`;
     const tutors = await db.any(query, [`%${nameSearch}%`, `%${courseSearch}%`, `%${timeSearch}%`]);
     //console.log({nameSearch}, {courseSearch}, {timeSearch});
@@ -191,16 +191,36 @@ app.get('/tutors/search', async (req, res) => {
   }
 });
 
+async function isStudentConnectedWithTutor(studentUserId, tutorUserId) {
+  try {
+    const result = await db.oneOrNone(
+      'SELECT * FROM user_to_user WHERE tutor_user = $1 AND student_user = $2',
+      [tutorUserId, studentUserId]
+    );
+
+    // If there is a result, the student is connected with the tutor
+    return !!result;
+  } catch (error) {
+    console.error('Error checking connection', error);
+    throw error;
+  }
+}
 
 app.get('/tutors', async (req, res) => { 
   try{
-    const query = `SELECT u.user_id, u.email, u.time_info, c.course_name 
+    const query = `SELECT u.user_id, u.email, u.time_info, p.post_id, c.course_name 
     FROM users u 
     JOIN users_to_courses utc ON u.user_id = utc.user_id 
     JOIN courses c ON utc.course_id = c.course_id 
-    WHERE u.tutor = true;`;
+    JOIN posts p ON p.user_id = u.user_id
+    WHERE u.tutor = true AND utc.tutoring = true;`;
 
     const tutors = await db.any(query);
+
+    for (const tutor of tutors) {
+      tutor.isConnected = await isStudentConnectedWithTutor(req.session.user_id, tutor.user_id);
+    }
+
     res.render('pages/tutors', { session: req.session.user, tutors });
 
   } catch (error){
@@ -216,7 +236,7 @@ app.get('/students', async (req, res) => {
     FROM users u 
     JOIN users_to_courses utc ON u.user_id = utc.user_id 
     JOIN courses c ON utc.course_id = c.course_id 
-    WHERE u.student = true;`;
+    WHERE u.student = true AND utc.tutoring = false;`;
 
     const students = await db.any(query);
     res.render('pages/students', { session: req.session.user, students });
@@ -226,6 +246,14 @@ app.get('/students', async (req, res) => {
     console.error('Error during serach:', error);
     res.ststus(500).render('pages/students', { session: req.session.user, error });
   }
+});
+
+app.post('/addPost/tutoring', async(req, res) => {
+  res.render('pages/landing', {session: (req.session.user?true:false)})
+});
+
+app.post('/addPost/student', async(req, res) => {
+  res.render('pages/landing', {session: (req.session.user?true:false)})
 });
 
 app.get('/profile', async (req, res) =>{
@@ -240,9 +268,22 @@ app.post('/connect/student', async(req, res) => {
 
 app.post('/connect/tutor', async(req, res) => {
   //this should be changed to connecting tutor and user through the user_to_user table
-
   res.render('pages/landing', {session: (req.session.user?true:false)})
 });
+
+app.post('/upvote/:id', async(req, res) => {
+  const post_query = "SELECT upvote FROM posts, users WHERE posts.post_id=$1"
+  try{
+    const post_upvote = db.oneOrNone(post_query, [req.params.id])
+    post_upvote++;
+    res.redirect('/tutors');
+    //res.render('pages/tutors', { session: req.session.upvote, post_upvote });
+  }catch(error){
+    console.error('Error during upvote', error)
+    res.ststus(500).render('pages/tutors', { session: req.session.upvote, error });
+  }
+});
+
 
 
 // START SERVER
