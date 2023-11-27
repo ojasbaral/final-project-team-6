@@ -44,13 +44,15 @@
                 <div class="form-group">
                     <label for="classes" style="display: block;">Courses:</label>
                     <select id="classes" name="classes[]" multiple class="select2">
-                        <option value="" disabled selected>Add Courses</option>
-
+                        
+                        
                         <% courses.forEach(course => { %>
-                            <option value=" CSCI <%= course.course_id %> "><%= course.course_name %></option>
+                            <option value="<%= course.course_id %>" <%-classes.has(course.course_id+'')?"selected='selected'":''%>><%= course.course_name %></option>
                             
                         <% }); %>
                     </select>
+
+                    
                 </div>
 
                 <div class="form-group">

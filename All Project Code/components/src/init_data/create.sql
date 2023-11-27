@@ -4,7 +4,7 @@ CREATE TABLE users(
 	email VARCHAR(100) NOT NULL,
 	password VARCHAR(250) NOT NULL,
 	bio VARCHAR(100),
-	time_info VARCHAR(100),
+	time_info VARCHAR(500),
 	contact_info VARCHAR(100),
 	rate_info VARCHAR(100),
 	tutor BOOLEAN DEFAULT false,

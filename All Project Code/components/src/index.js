@@ -105,7 +105,7 @@ app.get('/register', (req, res) => {
 
 app.get('/logout', (req, res) => {
     req.session.destroy();
-    res.render('pages/login', {session: false, message: 'Logged out Successfully!', error: false, user: (req.session.user?req.session.user.user_id:false)})
+    res.render('pages/login', {session: false, message: 'Logged out Successfully!', error: false, user: false})
 });
 
 app.post('/login', async (req, res) => {
@@ -124,7 +124,7 @@ app.post('/login', async (req, res) => {
         if (match) { //password match -> save user session and redirect
             req.session.user = user;
             req.session.save();
-            res.redirect('/profile');
+            res.redirect('/');
         } else {
             res.status(400).render('pages/login', {session: (req.session.user?true:false), message: 'Incorrect password', error: true, user: (req.session.user?req.session.user.user_id:false)});
         }
@@ -195,7 +195,6 @@ app.get('/update-profile', async(req, res) => {
     const userEmailQuery = `SELECT email FROM users WHERE user_id = $1`;
     const userEmailResult = await db.oneOrNone(userEmailQuery, userId);
     const userEmail = userEmailResult ? userEmailResult.email : '';
-     console.log('profileData:', profileData); // Log the profileData object
     const allTimes = ['8:00am', '9:00am','10:00am','11:00am','12:00pm','1:00pm','2:00pm','3:00pm','4:00pm','5:00pm','6:00pm','7:00pm','8:00pm'];
     const courses = [
       { course_id: 1000, course_name: 'Computer Science as a Field of Work and Study', credit_hours: 1 },
@@ -220,11 +219,30 @@ app.get('/update-profile', async(req, res) => {
       { course_id: 4448, course_name: 'Object-Oriented Analysis and Design', credit_hours:  3},
       { course_id: 4502, course_name: 'Data Mining', credit_hours:  3},
     ];
-  
-    res.render('pages/profile', {
+    
+    //fetch classes
+    const class_query = 'SELECT course_id FROM users_to_courses WHERE user_id=$1'
+    
+    try {
+      const class_res = await db.manyOrNone(class_query, [req.session.user.user_id])
+      profileData.classes = []
+      console.log(class_res)
+      if (class_res){
+        class_res.forEach((class_id) => {
+          console.log(class_id)
+          profileData.classes.push((class_id.course_id) + '')
+        })
+      }
+    } catch (e) {
+      console.error('Error fetching user data:', e);
+      res.status(500).send('Internal Server Error');
+    }
+    
+    console.log('profileData:', profileData); // Log the profileData object
+    res.render('pages/update-profile', {
       bio: req.session.user.bio,
       courses: courses,
-      classes: Array.isArray(profileData.classes) ? profileData.classes : [],
+      classes: Array.isArray(profileData.classes) ? new Set(profileData.classes) : [],
       monday_time_info: Array.isArray(profileData.monday_time_info) ? profileData.monday_time_info : [],
       tuesday_time_info: Array.isArray(profileData.tuesday_time_info) ? profileData.tuesday_time_info : [],
       wednesday_time_info: Array.isArray(profileData.wednesday_time_info) ? profileData.wednesday_time_info : [],
@@ -235,9 +253,10 @@ app.get('/update-profile', async(req, res) => {
       student: req.session.user.student,
       session: (req.session.user ? true : false),
       allTimes: allTimes,
-      editMode: editMode,
+      editMode: true,
       userEmail: userEmail,
-      
+      user: (req.session.user?req.session.user.user_id:false),
+
     });
   }catch (error) {
     console.error('Error fetching user data:', error);
@@ -247,7 +266,8 @@ app.get('/update-profile', async(req, res) => {
 });
 
 
-app.post('/update-profile', (req, res) => {
+app.post('/update-profile', async (req, res) => {
+  const prior_classes = new Set(profileData.classes)
   profileData.bio = req.body.bio;
   profileData.classes = req.body.classes;
   profileData.monday_time_info = req.body.monday_time_info;
@@ -265,6 +285,33 @@ app.post('/update-profile', (req, res) => {
   req.session.user.tutor = profileData.tutor;
   req.session.user.student = profileData.student;
 
+  if(profileData.classes !== undefined){
+  profileData.classes.forEach( async (class_num) => {
+    if(!prior_classes.has(class_num)){
+      try {
+        const query = 'INSERT INTO users_to_courses (user_id, course_id) VALUES ($1, $2)'
+        const insert_result = await db.oneOrNone(query, [req.session.user.user_id, parseInt(class_num)])
+      }
+      catch (error) {
+        console.error('Error updating user data:', error);
+        res.status(500).send('Internal Server Error');
+      }
+    }else{
+      prior_classes.delete(class_num)
+    }
+  })
+
+  for (let class_num of prior_classes){
+    try {
+      const query = 'DELETE FROM users_to_courses WHERE user_id=$1 AND course_id=$2'
+      const delete_result = await db.oneOrNone(query, [req.session.user.user_id, parseInt(class_num)])
+    }
+    catch (error) {
+        console.error('Error updating user data:', error);
+        res.status(500).send('Internal Server Error');
+      }
+  }
+}
   
   const timeInfoString = `
   Monday: ${profileData.monday_time_info},
@@ -279,16 +326,16 @@ req.session.user.time_info = timeInfoString;
     bio: profileData.bio,
     time_info: timeInfoString,
     contact_info: profileData.contact_info,
-    tutor: profileData.tutor,
-    student: profileData.student
-
-
+    tutor: profileData.tutor==='on'?true:false,
+    student: profileData.student==='on'?true:false
   };
+
+  console.log(timeInfoString)
 
   const userId = req.session.user.user_id;
   updateUser(userId, updatedFields);
   
-  res.redirect('/profile');
+  res.redirect(`/profile/${userId}`);
   editMode = false;
 });
 
@@ -296,21 +343,33 @@ req.session.user.time_info = timeInfoString;
 app.get('/profile/:id', async (req, res) => {
 
   const user_query = "SELECT email, bio, time_info, contact_info, rate_info, tutor, student FROM users WHERE user_id=$1"
+  const class_query = "SELECT course_id FROM users_to_courses WHERE user_id=$1"
   const posts_query = "SELECT post_id, upvote, post, email, bio, time_info, contact_info, rate_info FROM posts, users WHERE users.user_id = posts.user_id AND users.user_id=$1"
   let user_data = {}
+  let class_string = ''
 
   try {
     //get the user from database
     const user = await db.oneOrNone(user_query, [req.params.id])
     const posts = await db.manyOrNone(posts_query, [req.params.id])
+    const classes = await db.manyOrNone(class_query, [req.params.id])
+    
+    if (classes){
+    classes.forEach((course_id) => {
+      
+      class_string = class_string + `CSCI ${course_id.course_id}, `
+    })
+
+    class_string = class_string.slice(0, -2)
+  }
     
     user_data = user
   } catch (e) {
     console.error('Error during rendering of profile page', e)
-    res.status(400).render('pages/profile', {session: (req.session.user?true:false), message: 'There was an error, please try again', error: true, user: (req.session.user?req.session.user.user_id:false)});
+    res.status(400).render('pages/profile', {classes:class_string, session: (req.session.user?true:false), message: 'There was an error, please try again', error: true, user: (req.session.user?req.session.user.user_id:false)});
   }
-
-  res.render('pages/profile', {session: (req.session.user?true:false), user: (req.session.user?req.session.user.user_id:false), user_data: user_data, edit_perms: (req.session.user.user_id==req.params.id?true:false)})
+ 
+  res.render('pages/profile', {classes: class_string, session: (req.session.user?true:false), user: (req.session.user?req.session.user.user_id:false), user_data: user_data, edit_perms: (req.session.user.user_id==req.params.id?true:false)})
 })
 
 // START SERVER
