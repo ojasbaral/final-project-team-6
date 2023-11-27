@@ -92,20 +92,20 @@ app.get('/welcome', (req, res) => { // sample test from Lab 11
 app.get('/', (req, res) => {
 
   // Testing navbar component, session represents whether a user is logged in or not
-  res.render('pages/landing', {session: (req.session.user?true:false)})
+  res.render('pages/landing', {session: (req.session.user?true:false), user: (req.session.user?req.session.user.user_id:false)})
 })
 
 app.get('/login', (req, res) => {
-    res.render('pages/login', {session: (req.session.user?true:false)});
+    res.render('pages/login', {session: (req.session.user?true:false), user: (req.session.user?req.session.user.user_id:false)});
 });
 
 app.get('/register', (req, res) => {
-    res.render('pages/register',{session: (req.session.user?true:false)})
+    res.render('pages/register',{session: (req.session.user?true:false), user: (req.session.user?req.session.user.user_id:false)})
 });
 
 app.get('/logout', (req, res) => {
     req.session.destroy();
-    res.render('pages/login', {session: false, message: 'Logged out Successfully!', error: false})
+    res.render('pages/login', {session: false, message: 'Logged out Successfully!', error: false, user: (req.session.user?req.session.user.user_id:false)})
 });
 
 app.post('/login', async (req, res) => {
@@ -117,7 +117,7 @@ app.post('/login', async (req, res) => {
         const user = await db.oneOrNone(query, email);
 
         if (!user) { //user not found
-            res.status(400).render('pages/login', {session: (req.session.user?true:false), message: 'User not found', error: true});
+            res.status(400).render('pages/login', {session: (req.session.user?true:false), message: 'User not found', error: true, user: (req.session.user?req.session.user.user_id:false)});
         } else { //check if password is correct
             const match = await bcrypt.compare(password, user.password);
 
@@ -126,13 +126,12 @@ app.post('/login', async (req, res) => {
             req.session.save();
             res.redirect('/profile');
         } else {
-            res.status(400).render('pages/login', {session: (req.session.user?true:false), message: 'Incorrect password', error: true});
+            res.status(400).render('pages/login', {session: (req.session.user?true:false), message: 'Incorrect password', error: true, user: (req.session.user?req.session.user.user_id:false)});
         }
         }
     } catch (error) {
         console.error('Error during login:', error);
-
-        res.status(400).render('pages/login', {session: (req.session.user?true:false), message: 'Error during login!', error: true});
+        res.status(400).render('pages/login', {session: (req.session.user?true:false), message: 'Error during login!', error: true, user: (req.session.user?req.session.user.user_id:false)});
     }
 });
 
@@ -149,7 +148,7 @@ app.post('/register', async (req, res) => {
       const checkResult = await db.oneOrNone(valid_email, user.email)
 
       if(checkResult){
-         res.status(400).render('pages/register', {session: (req.session.user?true:false), message: 'Email belongs to another account', error: true});
+         res.status(400).render('pages/register', {session: (req.session.user?true:false), message: 'Email belongs to another account', error: true, user: (req.session.user?req.session.user.user_id:false)});
       }else{
 
         const query = `INSERT INTO users (email, password) VALUES ($1, $2) RETURNING *`;
@@ -160,17 +159,17 @@ app.post('/register', async (req, res) => {
           if (insertResult) { // valid registration, redirect
           res.redirect('/login');
           } else {
-          res.status(400).render('pages/register', {session: (req.session.user?true:false), message: 'Email belongs to another account', error: true});
+          res.status(400).render('pages/register', {session: (req.session.user?true:false), message: 'Email belongs to another account', error: true, user: (req.session.user?req.session.user.user_id:false)});
           }
         } catch (error) {
             console.error('Error during registration:', error);
-            res.status(400).render('pages/register', {session: (req.session.user?true:false), message: 'Email belongs to another account', error: true});
+            res.status(400).render('pages/register', {session: (req.session.user?true:false), message: 'Email belongs to another account', error: true, user: (req.session.user?req.session.user.user_id:false)});
         }
 
       }
     } catch (error) {
       console.error('Error during registration:', error);
-      res.status(400).render('pages/register', {session: (req.session.user?true:false), message: 'Email belongs to another account', error: true});
+      res.status(400).render('pages/register', {session: (req.session.user?true:false), message: 'Email belongs to another account', error: true, user: (req.session.user?req.session.user.user_id:false)});
     }
 });
 
@@ -294,6 +293,25 @@ req.session.user.time_info = timeInfoString;
 });
 
 
+app.get('/profile/:id', async (req, res) => {
+
+  const user_query = "SELECT email, bio, time_info, contact_info, rate_info, tutor, student FROM users WHERE user_id=$1"
+  const posts_query = "SELECT post_id, upvote, post, email, bio, time_info, contact_info, rate_info FROM posts, users WHERE users.user_id = posts.user_id AND users.user_id=$1"
+  let user_data = {}
+
+  try {
+    //get the user from database
+    const user = await db.oneOrNone(user_query, [req.params.id])
+    const posts = await db.manyOrNone(posts_query, [req.params.id])
+    
+    user_data = user
+  } catch (e) {
+    console.error('Error during rendering of profile page', e)
+    res.status(400).render('pages/profile', {session: (req.session.user?true:false), message: 'There was an error, please try again', error: true, user: (req.session.user?req.session.user.user_id:false)});
+  }
+
+  res.render('pages/profile', {session: (req.session.user?true:false), user: (req.session.user?req.session.user.user_id:false), user_data: user_data, edit_perms: (req.session.user.user_id==req.params.id?true:false)})
+})
 
 // START SERVER
 // app.listen(3000);

@@ -1,0 +1,26 @@
+<%- include ('../partials/head') %>
+    <%- include ('../partials/navbar') %>
+
+    <div class="container-fluid" style="padding:2rem;">
+
+        <div class="" style="display: flex; justify-content: space-between;">
+            <div>
+                <h4 style="margin-top:2rem;">Email: <%- user_data.email %> </h4>
+                <h4 style="margin-top:2rem;">Tutor: <%- (user_data.tutor?"Yes":"No") %></h4>
+                <h4 style="margin-top:2rem;">Student: <%- (user_data.student?"Yes":"No") %></h4>
+                <h4 style="margin-top:2rem;">Classes: <%- user_data.email %> </h4>
+                <h4 style="margin-top:2rem;">Times Available: <%- user_data.time_info %> </h4>
+                <h4 style="margin-top:2rem;">Price Range: <%- user_data.rate_info %> </h4>
+                <h4 style="margin-top:2rem;">Contact Information: <%- user_data.contact_info %> </h4>
+                <h4 style="margin-top:2rem;">Bio: <%- user_data.bio %> </h4>
+            </div>
+            <div>
+                <a class="btn btn-primary" href="" role="button" style="font-size:20px; margin-top:2rem;"><%- (edit_perms?"Edit Profile":"Create Work Connection") %></a>
+    
+            </div>
+        </div>
+        <h4 style="margin-top:2rem;">Your Posts:</h4>
+    </div>
+
+
+<%- include ('../partials/footer') %>
