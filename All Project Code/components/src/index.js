@@ -185,7 +185,9 @@ const auth = (req, res, next) => {
 // Authentication Required
 app.use(auth);
 
-app.get('/profile', async(req, res) => {
+// ENDPOINTS HERE
+
+app.get('/update-profile', async(req, res) => {
 
   try{
     const userId = req.session.user.user_id;
@@ -291,7 +293,6 @@ req.session.user.time_info = timeInfoString;
   editMode = false;
 });
 
-// ENDPOINTS HERE
 
 
 // START SERVER
