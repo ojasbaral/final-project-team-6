@@ -1,0 +1,30 @@
+<%- include ('../partials/head') %>
+    <%- include ('../partials/navbar') %>
+
+    <div class="container-fluid" style="padding:2rem;">
+
+        <div class="" style="display: flex; justify-content: space-between;">
+            <div>
+                <h4 style="margin-top:2rem;">Email: <%- user_data.email %> </h4>
+                <h4 style="margin-top:2rem;">Tutor: <%- (user_data.tutor?"Yes":"No") %></h4>
+                <h4 style="margin-top:2rem;">Student: <%- (user_data.student?"Yes":"No") %></h4>
+                <h4 style="margin-top:2rem;">Classes: <%- classes %> </h4>
+                <h4 style="margin-top:2rem;">Times Available: <%- user_data.time_info %> </h4>
+                <h4 style="margin-top:2rem;">Price Range: <%- user_data.rate_info %> </h4>
+                <h4 style="margin-top:2rem;">Contact Information: <%- user_data.contact_info %> </h4>
+                <h4 style="margin-top:2rem;">Bio: <%- user_data.bio %> </h4>
+            </div>
+            <div>
+                <form action="<%- "/delete-connection/" + user_id %>" method="POST">
+                    <a class="" href="<%- (edit_perms?'/update-profile':(user_data.relationship?'/profile/' + user_id:"/create-connection/" + user_id)) %>"> <button type="<%- (!edit_perms&&user_data.relationship)?'submit':'button' %>" class="btn btn-primary"
+                        style="font-size:20px; margin-top:2rem;"> <%- (edit_perms?"Edit Profile":(user_data.relationship?"Delete Work Connection":"Create Work Connection")) %> </button> </a>
+                </form>
+                <h4 style="margin-top:2rem;">Tutored <%- user_data.tutors %> students</h4>
+                <h4 style="margin-top:2rem;">Learned from <%- user_data.students %> tutors</h4>
+            </div>
+        </div>
+        <h4 style="margin-top:2rem;">Your Posts:</h4>
+    </div>
+
+
+<%- include ('../partials/footer') %>
