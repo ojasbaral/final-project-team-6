@@ -125,7 +125,7 @@ app.post('/login', async (req, res) => {
         if (match) { //password match -> save user session and redirect
             req.session.user = user;
             req.session.save();
-            res.redirect('/');
+            res.redirect('/profile/'+req.session.user.userId);
         } else {
             res.status(400).render('pages/login', {session: (req.session.user?true:false), message: 'Incorrect password', error: true, user: (req.session.user?req.session.user.user_id:false)});
         }

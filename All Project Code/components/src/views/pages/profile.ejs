@@ -15,11 +15,9 @@
                 <h4 style="margin-top:2rem;">Bio: <%- user_data.bio %> </h4>
             </div>
             <div>
-                <a class="btn btn-primary" href="<%- (edit_perms?'/update-profile':'/') %>" role="button" style="font-size:20px; margin-top:2rem;"><%- (edit_perms?"Edit Profile":"Create Work Connection") %></a>
-    
+                <a class="btn btn-primary" onclick="location.reload()" href="<%- (edit_perms?'/update-profile':'/') %>" role="button" style="font-size:20px; margin-top:2rem;"><%- (edit_perms?"Edit Profile":"Create Work Connection") %></a>
             </div>
         </div>
-        <h4 style="margin-top:2rem;">Your Posts:</h4>
     </div>
 
 
