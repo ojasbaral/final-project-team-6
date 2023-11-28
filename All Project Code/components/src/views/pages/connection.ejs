@@ -1,0 +1,17 @@
+<%- include ('../partials/head') %>
+    <%- include ('../partials/navbar') %>
+
+    <div class="container-fluid" style="display: flex; flex-direction: column; align-items: center; font-size: 20px;">
+        <h1 style="text-align:center; margin: 2rem;">Create a connection with <%- user_email %></h1>
+        <form action="<%- "/create-connection/" + user_id %>" method="POST">
+            <select name="type" class="form-select" aria-label="Default select example">
+                <option selected>Choose Relationship</option>
+                <option name="tutor" value="1">I am the tutor</option>
+                <option name="student" value="2">I am the student</option>
+            </select>
+
+            <button type="submit" style='margin-top: 2rem; width: 20rem;' class="btn btn-primary">Create Connection</button>
+        </form>
+    </div>
+
+<%- include ('../partials/footer') %>

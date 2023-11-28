@@ -345,31 +345,95 @@ app.get('/profile/:id', async (req, res) => {
   const user_query = "SELECT email, bio, time_info, contact_info, rate_info, tutor, student FROM users WHERE user_id=$1"
   const class_query = "SELECT course_id FROM users_to_courses WHERE user_id=$1"
   const posts_query = "SELECT post_id, upvote, post, email, bio, time_info, contact_info, rate_info FROM posts, users WHERE users.user_id = posts.user_id AND users.user_id=$1"
+  const tutor_query = "SELECT COUNT(*) as count FROM user_to_user WHERE tutor_user=$1"
+  const student_query = "SELECT COUNT(*) as count FROM user_to_user WHERE student_user=$1"
+  const check_relationship = "SELECT * FROM user_to_user WHERE (student_user=$1 AND tutor_user=$2) OR (student_user=$2 AND tutor_user=$1)"
   let user_data = {}
   let class_string = ''
 
   try {
     //get the user from database
     const user = await db.oneOrNone(user_query, [req.params.id])
+    if (!user){
+      res.redirect('/profile/' + req.session.user.user_id)
+    }
     const posts = await db.manyOrNone(posts_query, [req.params.id])
     const classes = await db.manyOrNone(class_query, [req.params.id])
+    const tutors = await db.oneOrNone(tutor_query, [req.params.id])
+    const students = await db.oneOrNone(student_query, [req.params.id])
+    const relationship = await db.oneOrNone(check_relationship, [req.params.id, req.session.user.user_id])
     
     if (classes){
-    classes.forEach((course_id) => {
+      classes.forEach((course_id) => {
+        
+        class_string = class_string + `CSCI ${course_id.course_id}, `
+      })
       
-      class_string = class_string + `CSCI ${course_id.course_id}, `
-    })
-
-    class_string = class_string.slice(0, -2)
-  }
+      class_string = class_string.slice(0, -2)
+    }
     
     user_data = user
+    user_data['tutors'] = tutors.count
+    user_data['students'] = students.count
+    if (relationship) { user_data['relationship'] = true }
   } catch (e) {
     console.error('Error during rendering of profile page', e)
-    res.status(400).render('pages/profile', {classes:class_string, session: (req.session.user?true:false), message: 'There was an error, please try again', error: true, user: (req.session.user?req.session.user.user_id:false)});
+    res.status(400).render('pages/profile', {user_id: req.params.id, classes:class_string, session: (req.session.user?true:false), message: 'There was an error, please try again', error: true, user: (req.session.user?req.session.user.user_id:false)});
   }
  
-  res.render('pages/profile', {classes: class_string, session: (req.session.user?true:false), user: (req.session.user?req.session.user.user_id:false), user_data: user_data, edit_perms: (req.session.user.user_id==req.params.id?true:false)})
+  res.render('pages/profile', {user_id: req.params.id, classes: class_string, session: (req.session.user?true:false), user: (req.session.user?req.session.user.user_id:false), user_data: user_data, edit_perms: (req.session.user.user_id==req.params.id?true:false)})
+})
+
+app.get('/create-connection/:id', async (req, res) => {
+  const query = "SELECT email FROM users WHERE user_id=$1"
+  let email = ''
+
+  try{
+    email = await db.oneOrNone(query, [req.params.id])
+  } catch (e) {
+    console.error('Error during rendering of profile page', e)
+    res.status(400).render('pages/profile', {session: (req.session.user?true:false), message: 'There was an error, please try again', error: true, user: (req.session.user?req.session.user.user_id:false)});
+  }
+
+  res.render('pages/connection', {session: (req.session.user?true:false), user: (req.session.user?req.session.user.user_id:false), user_email: email.email, user_id: req.params.id})
+})
+
+app.post('/create-connection/:id', async (req, res) => {
+  console.log(req.body)
+  if (req.body.type === '2'){
+    const query = "INSERT INTO user_to_user (tutor_user, student_user) VALUES ($1, $2)"
+
+    try{
+      const relationship = await db.oneOrNone(query, [req.params.id, req.session.user.user_id])
+    } catch (e){
+      console.error('Error during rendering of profile page', e)
+      res.status(400).render('pages/profile', {session: (req.session.user?true:false), message: 'There was an error, please try again', error: true, user: (req.session.user?req.session.user.user_id:false)});
+    }
+  }else if (req.body.type === '1'){
+    const query = "INSERT INTO user_to_user (tutor_user, student_user) VALUES ($1, $2)"
+
+    try{
+      const relationship = await db.oneOrNone(query, [req.session.user.user_id, req.params.id])
+    } catch (e){
+      console.error('Error during rendering of profile page', e)
+      res.status(400).render('pages/profile', {session: (req.session.user?true:false), message: 'There was an error, please try again', error: true, user: (req.session.user?req.session.user.user_id:false)});
+    }
+  }
+
+  res.redirect('/profile/' + req.params.id)
+})
+
+app.post('/delete-connection/:id', async (req, res) => {
+  const query = "DELETE FROM user_to_user WHERE (student_user=$1 AND tutor_user=$2) OR (student_user=$2 AND tutor_user=$1)"
+  console.log("hello")
+  try {
+    const del = await db.oneOrNone(query, [req.params.id, req.session.user.user_id])
+  } catch (e){
+    console.error('Error during rendering of profile page', e)
+    res.status(400).render('pages/profile', {session: (req.session.user?true:false), message: 'There was an error, please try again', error: true, user: (req.session.user?req.session.user.user_id:false)});
+  }
+
+  res.redirect('/profile/' + req.params.id)
 })
 
 // START SERVER

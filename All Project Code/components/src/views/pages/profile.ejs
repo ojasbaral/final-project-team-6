@@ -15,8 +15,12 @@
                 <h4 style="margin-top:2rem;">Bio: <%- user_data.bio %> </h4>
             </div>
             <div>
-                <a class="btn btn-primary" href="<%- (edit_perms?'/update-profile':'/') %>" role="button" style="font-size:20px; margin-top:2rem;"><%- (edit_perms?"Edit Profile":"Create Work Connection") %></a>
-    
+                <form action="<%- "/delete-connection/" + user_id %>" method="POST">
+                    <a class="" href="<%- (edit_perms?'/update-profile':(user_data.relationship?'/profile/' + user_id:"/create-connection/" + user_id)) %>"> <button type="<%- (!edit_perms&&user_data.relationship)?'submit':'button' %>" class="btn btn-primary"
+                        style="font-size:20px; margin-top:2rem;"> <%- (edit_perms?"Edit Profile":(user_data.relationship?"Delete Work Connection":"Create Work Connection")) %> </button> </a>
+                </form>
+                <h4 style="margin-top:2rem;">Tutored <%- user_data.tutors %> students</h4>
+                <h4 style="margin-top:2rem;">Learned from <%- user_data.students %> tutors</h4>
             </div>
         </div>
         <h4 style="margin-top:2rem;">Your Posts:</h4>
