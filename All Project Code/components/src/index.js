@@ -267,7 +267,7 @@ req.session.user.time_info = timeInfoString;
 
   const updatedFields = {
     bio: profileData.bio,
-    //time_info: timeInfoString,
+    time_info: timeInfoString,
     contact_info: profileData.contact_info,
     tutor: profileData.tutor,
     student: profileData.student
