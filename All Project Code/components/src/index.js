@@ -146,7 +146,6 @@ app.post('/register', async (req, res) => {
     const valid_email = 'SELECT * FROM users WHERE email=$1'
     try {
       const checkResult = await db.oneOrNone(valid_email, user.email)
-
       if(checkResult){
          res.status(400).render('pages/register', {session: (req.session.user?true:false), message: 'Email belongs to another account', error: true, user: (req.session.user?req.session.user.user_id:false)});
       }else{
@@ -173,6 +172,7 @@ app.post('/register', async (req, res) => {
     }
 });
 
+
 const auth = (req, res, next) => {
   if (!req.session.user) {
     // Default to login page.
@@ -180,11 +180,8 @@ const auth = (req, res, next) => {
   }
   next();
 };
-
 // Authentication Required
 app.use(auth);
-
-// ENDPOINTS HERE
 
 app.get('/update-profile', async(req, res) => {
 
@@ -434,7 +431,135 @@ app.post('/delete-connection/:id', async (req, res) => {
   }
 
   res.redirect('/profile/' + req.params.id)
-})
+});
+
+
+
+app.get('/students/search', async (req, res) => {
+  const nameSearch = req.query.nameSearch || '';
+  const courseSearch = req.query.courseSearch || '';
+  const timeSearch = req.query.timeSearch || '';
+  try{
+    const query = `SELECT u.user_id, u.email, u.time_info, c.course_name
+    FROM users u 
+    JOIN users_to_courses utc ON u.user_id = utc.user_id 
+    JOIN courses c ON utc.course_id = c.course_id 
+    WHERE u.student = true AND utc.tutoring = false 
+    AND u.email ILIKE $1 AND c.course_name ILIKE $2 AND u.time_info ILIKE $3;`;
+    const students = await db.any(query, [`%${nameSearch}%`, `%${courseSearch}%`, `%${timeSearch}%`]);
+    //console.log({nameSearch}, {courseSearch}, {timeSearch});
+    //console.log(students);  && utc.tutoring = true
+    res.render('pages/students',{session: req.session.user, students});
+
+  } 
+  catch (error){
+    console.error('Error during serach:', error);
+    res.status(500).render('pages/students', {session: req.session.user, error});
+  }
+});
+
+
+app.get('/tutors/search', async (req, res) => {
+  const nameSearch = req.query.nameSearch || '';
+  const courseSearch = req.query.courseSearch || '';
+  const timeSearch = req.query.timeSearch || '';
+  try{
+    const query = `SELECT u.user_id, u.email, u.time_info, c.course_name
+    FROM users u 
+    JOIN users_to_courses utc ON u.user_id = utc.user_id 
+    JOIN courses c ON utc.course_id = c.course_id 
+    WHERE u.tutor = true AND utc.tutoring = true
+    AND u.email ILIKE $1 AND c.course_name ILIKE $2 AND u.time_info ILIKE $3;`;
+    const tutors = await db.any(query, [`%${nameSearch}%`, `%${courseSearch}%`, `%${timeSearch}%`]);
+    //console.log({nameSearch}, {courseSearch}, {timeSearch});
+    //console.log(tutors);
+    res.render('pages/tutors',{session: req.session.user, tutors});
+
+  } 
+  catch (error){
+    console.error('Error during serach:', error);
+    res.status(500).render('pages/students', {session: req.session.user, error});
+  }
+});
+
+async function isStudentConnectedWithTutor(studentUserId, tutorUserId) {
+  try {
+    const result = await db.oneOrNone(
+      'SELECT * FROM user_to_user WHERE tutor_user = $1 AND student_user = $2',
+      [tutorUserId, studentUserId]
+    );
+
+    // If there is a result, the student is connected with the tutor
+    return !!result;
+  } catch (error) {
+    console.error('Error checking connection', error);
+    throw error;
+  }
+}
+
+app.get('/tutors', async (req, res) => { 
+  try{
+    const query = `SELECT u.user_id, u.email, u.time_info, p.post_id, c.course_name 
+    FROM users u 
+    JOIN users_to_courses utc ON u.user_id = utc.user_id 
+    JOIN courses c ON utc.course_id = c.course_id 
+    JOIN posts p ON p.user_id = u.user_id
+    WHERE u.tutor = true AND utc.tutoring = true;`;
+
+    const tutors = await db.any(query);
+
+    for (const tutor of tutors) {
+      tutor.isConnected = await isStudentConnectedWithTutor(req.session.user_id, tutor.user_id);
+    }
+
+    res.render('pages/tutors', { session: req.session.user, tutors });
+
+  } catch (error){
+
+    console.error('Error fetching tutors:', error);
+    res.ststus(500).render('pages/landing', {error});
+  }
+});
+
+app.get('/students', async (req, res) => { 
+  try{
+    const query = `SELECT u.user_id, u.email, u.time_info, c.course_name 
+    FROM users u 
+    JOIN users_to_courses utc ON u.user_id = utc.user_id 
+    JOIN courses c ON utc.course_id = c.course_id 
+    WHERE u.student = true AND utc.tutoring = false;`;
+
+    const students = await db.any(query);
+    res.render('pages/students', { session: req.session.user, students });
+
+  } catch (error){
+
+    console.error('Error during serach:', error);
+    res.ststus(500).render('pages/students', { session: req.session.user, error });
+  }
+});
+
+app.post('/addPost/tutoring', async(req, res) => {
+  res.render('pages/landing', {session: (req.session.user?true:false)})
+});
+
+app.post('/addPost/student', async(req, res) => {
+  res.render('pages/landing', {session: (req.session.user?true:false)})
+});
+
+
+app.post('/upvote/:id', async(req, res) => {
+  const post_query = "SELECT upvote FROM posts, users WHERE posts.post_id=$1"
+  try{
+    const post_upvote = db.oneOrNone(post_query, [req.params.id])
+    post_upvote++;
+    res.redirect('/tutors');
+    //res.render('pages/tutors', { session: req.session.upvote, post_upvote });
+  }catch(error){
+    console.error('Error during upvote', error)
+    res.ststus(500).render('pages/tutors', { session: req.session.upvote, error });
+  }
+});
 
 // START SERVER
 // app.listen(3000);

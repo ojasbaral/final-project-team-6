@@ -1,0 +1,65 @@
+<%- include ('../partials/head') %>
+<%- include ('../partials/navbar') %>
+<main>
+    <div style="position: absolute; left: 50%; transform: translateX(-72%); margin-top:5rem;">
+        <div class="container" style="width: 150%;">
+
+        <%- include ('../partials/message') %>
+        
+        <h2 style="margin-top: 15px;">Tutors</h2>
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <button class="btn btn-success me-md-2" href="/addPost/tutoring" type="button">Create post</button>
+        </div>
+        <nav class="navbar bg-body-tertiary">
+            <div class="container-fluid">
+              <form class="d-flex" action="/tutors/search" method="GET">
+                <input class="form-control me-2" type="text" name="nameSearch" placeholder="Name" aria-label="nameSearch">
+                <input class="form-control me-2" type="text" name="courseSearch" placeholder="Course" aria-label="courseSearch">
+                <input class="form-control me-2" type="text" name="timeSearch" placeholder="Time" aria-label="timeSearch">
+                <%/* Drop down menu for times 
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Time
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#">8am</a></li>
+                    <li><a class="dropdown-item" href="#">9am</a></li>
+                    <li><a class="dropdown-item" href="#">10am</a></li>
+                    <li><a class="dropdown-item" href="#">11am</a></li>
+                    <li><a class="dropdown-item" href="#">12am</a></li>
+
+                </ul>
+                */%>
+                <button class="btn btn-outline-success" type="submit">Search</button>
+              </form>
+            </div>
+          </nav>
+        <table class="table">
+            <thead>
+                <th> Tutor Email </th>
+                <th> Course Names </th>
+                <th> Time available </th>
+            </thead>
+        
+            <tbody>
+            <%tutors.forEach(function(t){ %> 
+                <tr>
+                    <td> <%= t.email %> </td>
+                    <td>
+                        <%= t.course_name %>
+                    </td>
+                    <td> <%= t.time_info %> </td>
+                    <td>
+                        <form method="GIT" action="/profile/<%= t.user_id %>">
+                            <input type="hidden" name="user_id" value="<%=t.user_id %>">
+                            <button type="submit">VIEW TUTOR</button>
+                        </form>
+                    </td>
+                </tr>
+            <% }) %>
+            </tbody>
+        </table>
+        </div>
+    </div>
+</main>
+
+<%- include ('../partials/footer') %>

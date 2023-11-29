@@ -8,7 +8,8 @@ CREATE TABLE users(
 	contact_info VARCHAR(100),
 	rate_info VARCHAR(100),
 	tutor BOOLEAN DEFAULT false,
-	student BOOLEAN DEFAULT false
+	student BOOLEAN DEFAULT false,
+	isConnected BOOLEAN DEFAULT false
 );
 
 DROP TABLE IF EXISTS user_to_user CASCADE;
