@@ -49,22 +49,10 @@
                     </td>
                     <td> <%= t.time_info %> </td>
                     <td>
-                        <form method="GIT" action="/profile">
+                        <form method="GIT" action="/profile/<%= t.user_id %>">
                             <input type="hidden" name="user_id" value="<%=t.user_id %>">
                             <button type="submit">VIEW TUTOR</button>
                         </form>
-                    </td>
-                    <td>
-                        <% if (t.isConnected) { %>
-                            <form method="POST" action="/upvote/<%= t.post_id %>">
-                                <button type="submit">UPVOTE</button>
-                            </form>
-                        <% } else { %>
-                            <form method="POST" action="/connect/tutor">
-                                <input type="hidden" name="user_id" value="<%= t.user_id %>">
-                                <button type="submit">BOOK TUTOR</button>
-                            </form>
-                        <% } %>    
                     </td>
                 </tr>
             <% }) %>

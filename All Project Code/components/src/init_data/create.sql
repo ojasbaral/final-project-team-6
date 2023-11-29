@@ -12,15 +12,6 @@ CREATE TABLE users(
 	isConnected BOOLEAN DEFAULT false
 );
 
-DROP TABLE IF EXISTS posts CASCADE;
-CREATE TABLE posts(
-	post_id SERIAL PRIMARY KEY,
-	user_id INT NOT NULL,
-    upvote INT DEFAULT 0,
-	post VARCHAR(200),
-	FOREIGN KEY (user_id) REFERENCES users(user_id)
-);
-
 DROP TABLE IF EXISTS user_to_user CASCADE;
 CREATE TABLE user_to_user(
 	tutor_user INT,

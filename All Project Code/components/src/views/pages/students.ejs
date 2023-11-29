@@ -49,15 +49,9 @@
                     </td>
                     <td> <%= s.time_info %> </td>
                     <td>
-                        <form method="GIT" action="/profile">
+                        <form method="GIT" action="/profile/<%= s.user_id %>">
                             <input type="hidden" name="user_id" value="<%=s.user_id %>">
                             <button type="submit">VIEW STUDENT</button>
-                        </form>
-                    </td>
-                    <td>
-                        <form method="POST" action="/connect/student">
-                            <input type="hidden" name="user_id" value="<%=s.user_id %>">
-                            <button type="submit">CONNECT WITH STUDENT</button>
                         </form>
                     </td>
                 </tr>
