@@ -398,6 +398,7 @@ app.get('/create-connection/:id', async (req, res) => {
 app.post('/create-connection/:id', async (req, res) => {
   console.log(req.body)
   if (req.body.type === '2'){
+
     const query = "INSERT INTO user_to_user (tutor_user, student_user) VALUES ($1, $2)"
 
     try{
