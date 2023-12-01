@@ -310,12 +310,12 @@ app.post('/update-profile', async (req, res) => {
   }
 }
   
-  const timeInfoString = `
-  Monday: ${profileData.monday_time_info},
-  Tuesday: ${profileData.tuesday_time_info},
-  Wednesday: ${profileData.wednesday_time_info},
-  Thursday: ${profileData.thursday_time_info},
-  Friday: ${profileData.friday_time_info}
+const timeInfoString = `
+  ${profileData.monday_time_info ? 'Monday: ' + profileData.monday_time_info + ',' : ''}
+  ${profileData.tuesday_time_info ? 'Tuesday: ' + profileData.tuesday_time_info + ',' : ''}
+  ${profileData.wednesday_time_info ? 'Wednesday: ' + profileData.wednesday_time_info + ',' : ''}
+  ${profileData.thursday_time_info ? 'Thursday: ' + profileData.thursday_time_info + ',' : ''}
+  ${profileData.friday_time_info ? 'Friday: ' + profileData.friday_time_info + '' : ''}
 `.trim();
 req.session.user.time_info = timeInfoString;
 
@@ -437,48 +437,127 @@ app.post('/delete-connection/:id', async (req, res) => {
 
 app.get('/students/search', async (req, res) => {
   const nameSearch = req.query.nameSearch || '';
-  const courseSearch = req.query.courseSearch || '';
-  const timeSearch = req.query.timeSearch || '';
+  const classes = req.query.classes || [];
+  const courses = [
+    { course_id: 1000, course_name: 'Computer Science as a Field of Work and Study', credit_hours: 1 },
+    { course_id: 1300, course_name: 'Introduction to Programming', credit_hours: 4},
+    { course_id: 1200, course_name: 'Introduction to computational thinking', credit_hours: 3},
+    { course_id: 2270, course_name: 'Data Structures', credit_hours:  4},
+    { course_id: 2400, course_name: 'Computer Systems', credit_hours:  4},
+    { course_id: 3308, course_name: 'Software Development Methods and Tools', credit_hours:  3},
+    { course_id: 2824, course_name: 'Discrete Structures', credit_hours:  3},
+    { course_id: 3104, course_name: 'Algorithms', credit_hours:  4},
+    { course_id: 3155, course_name: 'Principles of Programming Languages', credit_hours:  4},
+    { course_id: 3287, course_name: 'Design and Analysis of Database systems', credit_hours:  3},
+    { course_id: 3753, course_name: 'Design and Analysis of Operating systems', credit_hours:  4},
+    { course_id: 2820, course_name: 'Linear Algebra with Computer Science Applications', credit_hours:  3},
+    { course_id: 3202, course_name: 'Introduction to Artificial Intelligence', credit_hours:  3},
+    { course_id: 3022, course_name: 'Introduction to Data Science', credit_hours:  3},
+    { course_id: 3002, course_name: 'Fundamentals of Human Computer Interaction', credit_hours:  4},
+    { course_id: 3010, course_name: 'Intensive Programming Workshop', credit_hours:  3},
+    { course_id: 4253, course_name: 'Data Center Scale Computing', credit_hours:  3},
+    { course_id: 4273, course_name: 'Network Systems', credit_hours:  3},
+    { course_id: 4308, course_name: 'Software Engineering Project 1', credit_hours:  4},
+    { course_id: 4448, course_name: 'Object-Oriented Analysis and Design', credit_hours:  3},
+    { course_id: 4502, course_name: 'Data Mining', credit_hours:  3},
+  ];
+  const allTimes = ['8:00am', '9:00am','10:00am','11:00am','12:00pm','1:00pm','2:00pm','3:00pm','4:00pm','5:00pm','6:00pm','7:00pm','8:00pm'];
+  const time_info = req.query.time_info || [];
   try{
-    const query = `SELECT u.user_id, u.email, u.time_info, c.course_name
-    FROM users u 
-    JOIN users_to_courses utc ON u.user_id = utc.user_id 
-    JOIN courses c ON utc.course_id = c.course_id 
-    WHERE u.student = true AND utc.tutoring = false 
-    AND u.email ILIKE $1 AND c.course_name ILIKE $2 AND u.time_info ILIKE $3;`;
-    const students = await db.any(query, [`%${nameSearch}%`, `%${courseSearch}%`, `%${timeSearch}%`]);
-    //console.log({nameSearch}, {courseSearch}, {timeSearch});
-    //console.log(students);  && utc.tutoring = true
-    res.render('pages/students',{session: (req.session.user?true:false), students, user: (req.session.user?req.session.user.user_id:false)});
+    if(classes == ""){
+      const query = `SELECT u.user_id, u.email, u.time_info, c.course_name
+      FROM users u 
+      JOIN users_to_courses utc ON u.user_id = utc.user_id 
+      JOIN courses c ON utc.course_id = c.course_id 
+      WHERE u.student = true AND utc.tutoring = false 
+      AND u.email ILIKE $1 AND c.course_name ILIKE $2 AND u.time_info ILIKE $3;`;
+      const students = await db.any(query, [`%${nameSearch}%`, `%${classes}%`, `%${time_info}%`]);
 
+      res.render('pages/students',{session: (req.session.user?true:false), students, user: (req.session.user?req.session.user.user_id:false),courses: courses, classes:Array.isArray(profileData.classes) ? new Set(profileData.classes) : [], allTimes: allTimes, time_info: Array.isArray(time_info) ? time_info : []});
+
+    }else{
+      const query = `SELECT u.user_id, u.email, u.time_info, c.course_name
+      FROM users u 
+      JOIN users_to_courses utc ON u.user_id = utc.user_id 
+      JOIN courses c ON utc.course_id = c.course_id 
+      WHERE u.student = true AND utc.tutoring = false 
+      AND u.email ILIKE $1 AND c.course_id = $2 AND u.time_info ILIKE $3;`;
+      const students = await db.any(query, [`%${nameSearch}%`, `${classes}`, `%${time_info}%`]);
+
+      res.render('pages/students',{session: (req.session.user?true:false), students, user: (req.session.user?req.session.user.user_id:false),courses: courses, classes:Array.isArray(profileData.classes) ? new Set(profileData.classes) : [], allTimes: allTimes, time_info: Array.isArray(time_info) ? time_info : []});
+
+    }
+    
   } 
   catch (error){
     console.error('Error during serach:', error);
-    res.status(500).render('pages/students', {session: (req.session.user?true:false), error, user: (req.session.user?req.session.user.user_id:false)});
+    res.status(500).render('pages/landing', {session: (req.session.user?true:false), error, user: (req.session.user?req.session.user.user_id:false),courses: courses, classes:Array.isArray(profileData.classes) ? new Set(profileData.classes) : [], allTimes: allTimes, time_info: Array.isArray(time_info) ? time_info : []});
   }
 });
 
 
 app.get('/tutors/search', async (req, res) => {
   const nameSearch = req.query.nameSearch || '';
-  const courseSearch = req.query.courseSearch || '';
-  const timeSearch = req.query.timeSearch || '';
+  const classes = req.query.classes || [];
+  const courses = [
+    { course_id: 1000, course_name: 'Computer Science as a Field of Work and Study', credit_hours: 1 },
+    { course_id: 1300, course_name: 'Introduction to Programming', credit_hours: 4},
+    { course_id: 1200, course_name: 'Introduction to computational thinking', credit_hours: 3},
+    { course_id: 2270, course_name: 'Data Structures', credit_hours:  4},
+    { course_id: 2400, course_name: 'Computer Systems', credit_hours:  4},
+    { course_id: 3308, course_name: 'Software Development Methods and Tools', credit_hours:  3},
+    { course_id: 2824, course_name: 'Discrete Structures', credit_hours:  3},
+    { course_id: 3104, course_name: 'Algorithms', credit_hours:  4},
+    { course_id: 3155, course_name: 'Principles of Programming Languages', credit_hours:  4},
+    { course_id: 3287, course_name: 'Design and Analysis of Database systems', credit_hours:  3},
+    { course_id: 3753, course_name: 'Design and Analysis of Operating systems', credit_hours:  4},
+    { course_id: 2820, course_name: 'Linear Algebra with Computer Science Applications', credit_hours:  3},
+    { course_id: 3202, course_name: 'Introduction to Artificial Intelligence', credit_hours:  3},
+    { course_id: 3022, course_name: 'Introduction to Data Science', credit_hours:  3},
+    { course_id: 3002, course_name: 'Fundamentals of Human Computer Interaction', credit_hours:  4},
+    { course_id: 3010, course_name: 'Intensive Programming Workshop', credit_hours:  3},
+    { course_id: 4253, course_name: 'Data Center Scale Computing', credit_hours:  3},
+    { course_id: 4273, course_name: 'Network Systems', credit_hours:  3},
+    { course_id: 4308, course_name: 'Software Engineering Project 1', credit_hours:  4},
+    { course_id: 4448, course_name: 'Object-Oriented Analysis and Design', credit_hours:  3},
+    { course_id: 4502, course_name: 'Data Mining', credit_hours:  3},
+  ];
+  const allTimes = ['8:00am', '9:00am','10:00am','11:00am','12:00pm','1:00pm','2:00pm','3:00pm','4:00pm','5:00pm','6:00pm','7:00pm','8:00pm'];
+  const time_info = req.query.time_info || [];
+  //const timeSearch = req.query.timeSearch || '';
+
+
   try{
-    const query = `SELECT u.user_id, u.email, u.time_info, c.course_name
-    FROM users u 
-    JOIN users_to_courses utc ON u.user_id = utc.user_id 
-    JOIN courses c ON utc.course_id = c.course_id 
-    WHERE u.tutor = true AND utc.tutoring = true
-    AND u.email ILIKE $1 AND c.course_name ILIKE $2 AND u.time_info ILIKE $3;`;
-    const tutors = await db.any(query, [`%${nameSearch}%`, `%${courseSearch}%`, `%${timeSearch}%`]);
+    
+    if(classes == ""){
+      const query = `SELECT u.user_id, u.email, u.time_info, c.course_name
+      FROM users u 
+      JOIN users_to_courses utc ON u.user_id = utc.user_id 
+      JOIN courses c ON utc.course_id = c.course_id 
+      WHERE u.tutor = true AND utc.tutoring = true
+      AND u.email ILIKE $1 AND c.course_name ILIKE $2 AND ($3 = '' OR u.time_info ILIKE '%' || $3 || '%');`;
+      const tutors = await db.any(query, [`%${nameSearch}%`, `%${classes}%`, `%${time_info}%`]);
+      res.render('pages/tutors',{session: (req.session.user?true:false), tutors, user: (req.session.user?req.session.user.user_id:false), courses: courses, classes:Array.isArray(profileData.classes) ? new Set(profileData.classes) : [], allTimes: allTimes, time_info: Array.isArray(time_info) ? time_info : []});
+
+    }else{
+      const query = `SELECT u.user_id, u.email, u.time_info, c.course_name
+      FROM users u 
+      JOIN users_to_courses utc ON u.user_id = utc.user_id 
+      JOIN courses c ON utc.course_id = c.course_id 
+      WHERE u.tutor = true AND utc.tutoring = true
+      AND u.email ILIKE $1 AND c.course_id = $2 AND ($3 = '' OR u.time_info ILIKE '%' || $3 || '%');`;
+      const tutors = await db.any(query, [`%${nameSearch}%`, `${classes}`, `%${time_info}%`]);
+      res.render('pages/tutors',{session: (req.session.user?true:false), tutors, user: (req.session.user?req.session.user.user_id:false), courses: courses, classes:Array.isArray(profileData.classes) ? new Set(profileData.classes) : [], allTimes: allTimes, time_info: Array.isArray(time_info) ? time_info : []});
+
+    }
     //console.log({nameSearch}, {courseSearch}, {timeSearch});
     //console.log(tutors);
-    res.render('pages/tutors',{session: (req.session.user?true:false), tutors, user: (req.session.user?req.session.user.user_id:false)});
+    //res.render('pages/tutors',{session: (req.session.user?true:false), tutors, user: (req.session.user?req.session.user.user_id:false), courses: courses, classes:Array.isArray(profileData.classes) ? new Set(profileData.classes) : [], allTimes: allTimes, time_info: Array.isArray(time_info) ? time_info : []});
 
   } 
   catch (error){
     console.error('Error during serach:', error);
-    res.status(500).render('pages/students', {session: (req.session.user?true:false), error, user: (req.session.user?req.session.user.user_id:false)});
+    res.status(500).render('pages/landing', {session: (req.session.user?true:false), error, user: (req.session.user?req.session.user.user_id:false)});
   }
 });
 
@@ -499,6 +578,32 @@ async function isStudentConnectedWithTutor(studentUserId, tutorUserId) {
 
 app.get('/tutors', async (req, res) => { 
   try{
+    const courses = [
+      { course_id: 1000, course_name: 'Computer Science as a Field of Work and Study', credit_hours: 1 },
+      { course_id: 1300, course_name: 'Introduction to Programming', credit_hours: 4},
+      { course_id: 1200, course_name: 'Introduction to computational thinking', credit_hours: 3},
+      { course_id: 2270, course_name: 'Data Structures', credit_hours:  4},
+      { course_id: 2400, course_name: 'Computer Systems', credit_hours:  4},
+      { course_id: 3308, course_name: 'Software Development Methods and Tools', credit_hours:  3},
+      { course_id: 2824, course_name: 'Discrete Structures', credit_hours:  3},
+      { course_id: 3104, course_name: 'Algorithms', credit_hours:  4},
+      { course_id: 3155, course_name: 'Principles of Programming Languages', credit_hours:  4},
+      { course_id: 3287, course_name: 'Design and Analysis of Database systems', credit_hours:  3},
+      { course_id: 3753, course_name: 'Design and Analysis of Operating systems', credit_hours:  4},
+      { course_id: 2820, course_name: 'Linear Algebra with Computer Science Applications', credit_hours:  3},
+      { course_id: 3202, course_name: 'Introduction to Artificial Intelligence', credit_hours:  3},
+      { course_id: 3022, course_name: 'Introduction to Data Science', credit_hours:  3},
+      { course_id: 3002, course_name: 'Fundamentals of Human Computer Interaction', credit_hours:  4},
+      { course_id: 3010, course_name: 'Intensive Programming Workshop', credit_hours:  3},
+      { course_id: 4253, course_name: 'Data Center Scale Computing', credit_hours:  3},
+      { course_id: 4273, course_name: 'Network Systems', credit_hours:  3},
+      { course_id: 4308, course_name: 'Software Engineering Project 1', credit_hours:  4},
+      { course_id: 4448, course_name: 'Object-Oriented Analysis and Design', credit_hours:  3},
+      { course_id: 4502, course_name: 'Data Mining', credit_hours:  3},
+    ];
+    const allTimes = ['8:00am', '9:00am','10:00am','11:00am','12:00pm','1:00pm','2:00pm','3:00 pm','4:00pm','5:00pm','6:00pm','7:00pm','8:00pm'];
+    const classes = [];
+    const time_info = [];
     const query = `SELECT u.user_id, u.email, u.time_info, c.course_name 
     FROM users u 
     JOIN users_to_courses utc ON u.user_id = utc.user_id 
@@ -511,7 +616,7 @@ app.get('/tutors', async (req, res) => {
       tutor.isConnected = await isStudentConnectedWithTutor(req.session.user_id, tutor.user_id);
     }
 
-    res.render('pages/tutors', { session: (req.session.user?true:false), tutors, user: (req.session.user?req.session.user.user_id:false) });
+    res.render('pages/tutors', { session: (req.session.user?true:false), tutors, user: (req.session.user?req.session.user.user_id:false), courses: courses, classes:Array.isArray(profileData.classes) ? new Set(profileData.classes) : [], allTimes: allTimes, time_info: Array.isArray(time_info) ? time_info : []});
 
   } catch (error){
 
@@ -522,6 +627,32 @@ app.get('/tutors', async (req, res) => {
 
 app.get('/students', async (req, res) => { 
   try{
+    const courses = [
+      { course_id: 1000, course_name: 'Computer Science as a Field of Work and Study', credit_hours: 1 },
+      { course_id: 1300, course_name: 'Introduction to Programming', credit_hours: 4},
+      { course_id: 1200, course_name: 'Introduction to computational thinking', credit_hours: 3},
+      { course_id: 2270, course_name: 'Data Structures', credit_hours:  4},
+      { course_id: 2400, course_name: 'Computer Systems', credit_hours:  4},
+      { course_id: 3308, course_name: 'Software Development Methods and Tools', credit_hours:  3},
+      { course_id: 2824, course_name: 'Discrete Structures', credit_hours:  3},
+      { course_id: 3104, course_name: 'Algorithms', credit_hours:  4},
+      { course_id: 3155, course_name: 'Principles of Programming Languages', credit_hours:  4},
+      { course_id: 3287, course_name: 'Design and Analysis of Database systems', credit_hours:  3},
+      { course_id: 3753, course_name: 'Design and Analysis of Operating systems', credit_hours:  4},
+      { course_id: 2820, course_name: 'Linear Algebra with Computer Science Applications', credit_hours:  3},
+      { course_id: 3202, course_name: 'Introduction to Artificial Intelligence', credit_hours:  3},
+      { course_id: 3022, course_name: 'Introduction to Data Science', credit_hours:  3},
+      { course_id: 3002, course_name: 'Fundamentals of Human Computer Interaction', credit_hours:  4},
+      { course_id: 3010, course_name: 'Intensive Programming Workshop', credit_hours:  3},
+      { course_id: 4253, course_name: 'Data Center Scale Computing', credit_hours:  3},
+      { course_id: 4273, course_name: 'Network Systems', credit_hours:  3},
+      { course_id: 4308, course_name: 'Software Engineering Project 1', credit_hours:  4},
+      { course_id: 4448, course_name: 'Object-Oriented Analysis and Design', credit_hours:  3},
+      { course_id: 4502, course_name: 'Data Mining', credit_hours:  3},
+    ];
+    const allTimes = ['8:00am', '9:00am','10:00am','11:00am','12:00pm','1:00pm','2:00pm','3:00 pm','4:00pm','5:00pm','6:00pm','7:00pm','8:00pm'];
+    const classes = [];
+    const time_info = [];
     const query = `SELECT u.user_id, u.email, u.time_info, c.course_name 
     FROM users u 
     JOIN users_to_courses utc ON u.user_id = utc.user_id 
@@ -529,7 +660,7 @@ app.get('/students', async (req, res) => {
     WHERE u.student = true AND utc.tutoring = false;`;
 
     const students = await db.any(query);
-    res.render('pages/students', { session:(req.session.user?true:false), students, user: (req.session.user?req.session.user.user_id:false) });
+    res.render('pages/students', { session:(req.session.user?true:false), students, user: (req.session.user?req.session.user.user_id:false), courses: courses, classes:Array.isArray(profileData.classes) ? new Set(profileData.classes) : [], allTimes: allTimes, time_info: Array.isArray(time_info) ? time_info : []});
 
   } catch (error){
 
