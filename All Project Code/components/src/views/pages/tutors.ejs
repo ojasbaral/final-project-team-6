@@ -1,0 +1,119 @@
+<%- include ('../partials/head') %>
+<%- include ('../partials/navbar') %>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
+<main>
+    <div style="position: absolute; left: 50%; transform: translateX(-72%); margin-top:5rem;">
+        <div class="container" style="width: 150%;">
+
+        <%- include ('../partials/message') %>
+        
+        <h2 style="margin-top: 15px;">Tutors</h2>
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <button class="btn btn-success me-md-2" href="/addPost/tutoring" type="button">Create post</button>
+        </div>
+        <nav class="navbar bg-body-tertiary">
+            <div class="container-fluid">
+              <form class="d-flex flex-wrap" action="/tutors/search" method="GET">
+                <input class="form-control me-2" type="text" name="nameSearch" placeholder="Name" aria-label="nameSearch" style="width: 250px;">
+                <div class="form-group" style="margin-right: 10px;">
+                <select id="classes" name="classes[]" multiple class="select2" style="width: 350px;">
+                        
+                        
+                    <% courses.forEach(course => { %>
+                        <option value="<%= course.course_id %>" <%-classes.has(course.course_id+'')?"selected='selected'":''%>><%= course.course_name %></option>
+                        
+                    <% }); %>
+                </select>       
+                </div>         
+                <select id="time_info" name="time_info[]" multiple class="select2" style="width: 117px;">
+                    <option value="" disabled selected>Select Times</option>
+
+                    <% allTimes.forEach(time => { %>
+                        <option value="<%= time %>" <% if (time_info.includes(time)) { %>selected<% } %>><%= time %></option>
+                    <% }); %>
+
+                </select> 
+                <button class="btn btn-outline-success" style="position: absolute; left: 85%;" type="submit">Search</button>
+              </form>
+            </div>
+          </nav>
+        <table class="table">
+            <thead>
+                <th> Tutor Email </th>
+                <th> Course Names </th>
+                <th> Time available </th>
+            </thead>
+        
+            <tbody>
+            <%tutors.forEach(function(t){ %> 
+                <tr>
+                    <td> <%= t.email %> </td>
+                    <td>
+                        <%= t.course_name %>
+                    </td>
+                    <td> <%= t.time_info %> </td>
+                    <td>
+                        <form method="GET" action="/profile/<%= t.user_id %>">
+                            <input type="hidden" name="user_id" value="<%=t.user_id %>">
+                            <button type="submit">VIEW TUTOR</button>
+                        </form>
+                    </td>
+                </tr>
+            <% }) %>
+            </tbody>
+        </table>
+        </div>
+    </div>
+    <script>
+
+        $(document).ready(function() {
+                    var courseSelect = $('#classes')
+                    courseSelect.select2({
+                        tags: true,  // Allow custom tags
+                        tokenSeparators: [','],  // Define separators between tokens
+                        placeholder: "Add Courses",
+                    });
+                    courseSelect.on('select2:open', function(){
+                        courseSelect.find('option[value="').remove();
+                    });
+                    courseSelect.on('select2:close', function() {
+                    // If no option is selected, add the default option back
+                    if (courseSelect.val() == null || courseSelect.val().length === 0) {
+                        courseSelect.prepend('<option value="" disabled selected>Add Course</option>');
+                    }
+                });
+        });
+        
+        $(document).ready(function() {
+
+            var timeInfoSelect = $('#time_info');
+
+            timeInfoSelect.select2({
+                tags: true,  // Allow custom tags
+                tokenSeparators: [','],  // Define separators between tokens
+                placeholder: "Select Times"
+            });
+            timeInfoSelect.on('select2:open', function() {
+                // Remove the default option when the dropdown is open
+                timeInfoSelect.find('option[value=""]').remove();
+            });
+
+            timeInfoSelect.on('select2:close', function() {
+                // If no option is selected, add the default option back
+                if (timeInfoSelect.val() == null || timeInfoSelect.val().length === 0) {
+                    timeInfoSelect.prepend('<option value="" disabled selected>Select Times</option>');
+                }
+            });
+
+        });
+        
+
+        
+    </script>
+</main>
+
+
+<%- include ('../partials/footer') %>

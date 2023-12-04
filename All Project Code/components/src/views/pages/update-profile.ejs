@@ -4,7 +4,6 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
 <style>
@@ -19,7 +18,7 @@
 <main>
     <div class="container">
 
-
+<%- include ('../partials/message') %>
         <% if (editMode) { %>
             <!-- Edit Mode -->
             <form id="profileForm" action="/update-profile" method="post" class="<%= editMode ? 'edit-mode' : '' %>">
@@ -65,6 +64,7 @@
                                 <option value="" disabled selected>Add Times</option>
         
                                 <% allTimes.forEach(time => { %>
+                                    
                                     <option value="<%= time %>" <% if (monday_time_info.includes(time)) { %>selected<% } %>><%= time %></option>
                                 <% }); %>
                             </select>

@@ -3,19 +3,61 @@
 
     <div class="container-fluid" style="padding:2rem;">
 
+
+                <%- include ('../partials/message') %>
+
         <div class="" style="display: flex; justify-content: space-between;">
             <div>
                 <h4 style="margin-top:2rem;">Email: <%- user_data.email %> </h4>
                 <h4 style="margin-top:2rem;">Tutor: <%- (user_data.tutor?"Yes":"No") %></h4>
                 <h4 style="margin-top:2rem;">Student: <%- (user_data.student?"Yes":"No") %></h4>
-                <h4 style="margin-top:2rem;">Classes: <%- classes %> </h4>
+                <h4 style="margin-top:2rem;">Classes:</h4>
+                <% if (user_data.tutor && edit_perms) { %>
+                    <table class="table" style="width:auto;">
+                        <tbody>
+                            <%classes.forEach(function(c){ %>
+                                <tr>
+                                    <td>
+                                        <%- "CSCI " + c.course_id %>
+                                    </td>
+                                    <td>
+                                        <form method="POST" action="/change-class-status">
+                                            <input type="hidden" name="tutor_status" value=<%- c.tutoring %>>
+                                            <input type="hidden" name="class_id" value=<%- c.course_id %>>
+                                            <button type="submit" <%- c.tutoring? 'style="color: red"': 'style="color:green"' %>><%- c.tutoring?'Stop Tutoring Class':'Start Tutoring Class' %></button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                        </tbody>
+                    </table>
+                <% } else { %>
+                    <table class="table" style="width:auto;">
+                        <tbody>
+                            <%classes.forEach(function(c){ %>
+                                <tr>
+                                    <td>
+                                        <%- "CSCI " + c.course_id %>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                        </tbody>
+                    </table>
+                <% } %>
                 <h4 style="margin-top:2rem;">Times Available: <%- user_data.time_info %> </h4>
                 <h4 style="margin-top:2rem;">Price Range: <%- user_data.rate_info %> </h4>
                 <h4 style="margin-top:2rem;">Contact Information: <%- user_data.contact_info %> </h4>
                 <h4 style="margin-top:2rem;">Bio: <%- user_data.bio %> </h4>
             </div>
             <div>
-                <a class="btn btn-primary" onclick="location.reload()" href="<%- (edit_perms?'/update-profile':'/') %>" role="button" style="font-size:20px; margin-top:2rem;"><%- (edit_perms?"Edit Profile":"Create Work Connection") %></a>
+
+                <form action="<%- "/delete-connection/" + user_id %>" method="POST">
+                    <a class="" href="<%- (edit_perms?'/update-profile':(user_data.relationship?'/profile/' + user_id:"/create-connection/" + user_id)) %>"> <button type="<%- (!edit_perms&&user_data.relationship)?'submit':'button' %>" class="btn btn-primary"
+                        style="font-size:20px; margin-top:2rem;"> <%- (edit_perms?"Edit Profile":(user_data.relationship?"Delete Work Connection":"Create Work Connection")) %> </button> </a>
+                </form>
+                <h4 style="margin-top:2rem;">Tutored <%- user_data.tutors %> students</h4>
+                <h4 style="margin-top:2rem;">Learned from <%- user_data.students %> tutors</h4>
+
             </div>
         </div>
     </div>
