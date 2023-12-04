@@ -340,13 +340,13 @@ req.session.user.time_info = timeInfoString;
 app.get('/profile/:id', async (req, res) => {
 
   const user_query = "SELECT email, bio, time_info, contact_info, rate_info, tutor, student FROM users WHERE user_id=$1"
-  const class_query = "SELECT course_id FROM users_to_courses WHERE user_id=$1"
+  const class_query = "SELECT course_id, tutoring FROM users_to_courses WHERE user_id=$1"
   //const posts_query = "SELECT post_id, upvote, post, email, bio, time_info, contact_info, rate_info FROM posts, users WHERE users.user_id = posts.user_id AND users.user_id=$1"
   const tutor_query = "SELECT COUNT(*) as count FROM user_to_user WHERE tutor_user=$1"
   const student_query = "SELECT COUNT(*) as count FROM user_to_user WHERE student_user=$1"
   const check_relationship = "SELECT * FROM user_to_user WHERE (student_user=$1 AND tutor_user=$2) OR (student_user=$2 AND tutor_user=$1)"
   let user_data = {}
-  let class_string = ''
+  let class_data = []
 
   try {
     //get the user from database
@@ -360,14 +360,7 @@ app.get('/profile/:id', async (req, res) => {
     const students = await db.oneOrNone(student_query, [req.params.id])
     const relationship = await db.oneOrNone(check_relationship, [req.params.id, req.session.user.user_id])
     
-    if (classes){
-      classes.forEach((course_id) => {
-        
-        class_string = class_string + `CSCI ${course_id.course_id}, `
-      })
-      
-      class_string = class_string.slice(0, -2)
-    }
+    class_data = classes
     
     user_data = user
     user_data['tutors'] = tutors.count
@@ -375,10 +368,10 @@ app.get('/profile/:id', async (req, res) => {
     if (relationship) { user_data['relationship'] = true }
   } catch (e) {
     console.error('Error during rendering of profile page', e)
-    res.status(400).render('pages/profile', {user_id: req.params.id, classes:class_string, session: (req.session.user?true:false), message: 'There was an error, please try again', error: true, user: (req.session.user?req.session.user.user_id:false)});
+    res.status(400).render('pages/profile', {user_id: req.params.id, classes:class_data, session: (req.session.user?true:false), message: 'There was an error, please try again', error: true, user: (req.session.user?req.session.user.user_id:false)});
   }
  
-  res.render('pages/profile', {user_id: req.params.id, classes: class_string, session: (req.session.user?true:false), user: (req.session.user?req.session.user.user_id:false), user_data: user_data, edit_perms: (req.session.user.user_id==req.params.id?true:false)})
+  res.render('pages/profile', {user_id: req.params.id, classes: class_data, session: (req.session.user?true:false), user: (req.session.user?req.session.user.user_id:false), user_data: user_data, edit_perms: (req.session.user.user_id==req.params.id?true:false)})
 })
 
 app.get('/create-connection/:id', async (req, res) => {
@@ -398,6 +391,7 @@ app.get('/create-connection/:id', async (req, res) => {
 app.post('/create-connection/:id', async (req, res) => {
   console.log(req.body)
   if (req.body.type === '2'){
+
     const query = "INSERT INTO user_to_user (tutor_user, student_user) VALUES ($1, $2)"
 
     try{
@@ -690,6 +684,23 @@ app.get('/students', async (req, res) => {
 //     res.status(500).render('pages/tutors', { session: req.session.upvote, error, user: (req.session.user?req.session.user.user_id:false) });
 //   }
 // });
+
+app.post('/change-class-status', async (req, res) => {
+  const course_id = req.body.class_id
+  const user_id = req.session.user.user_id
+  const query = "UPDATE users_to_courses SET tutoring = NOT tutoring WHERE user_id=$1 AND course_id=$2"
+
+  try {
+
+    const query_result = await db.oneOrNone(query, [user_id, course_id])
+
+    res.redirect('/profile/' + req.session.user.user_id)
+
+  } catch (e) {
+    console.error('Error during rendering of profile page', e)
+    res.status(400).render('pages/profile', {session: (req.session.user?true:false), message: 'There was an error, please try again', error: true, user: (req.session.user?req.session.user.user_id:false)});
+  }
+})
 
 // START SERVER
 // app.listen(3000);
