@@ -390,28 +390,55 @@ app.get('/create-connection/:id', async (req, res) => {
 
 app.post('/create-connection/:id', async (req, res) => {
   console.log(req.body)
+  user_email_query = "SELECT email FROM users WHERE user_id=$1"
   if (req.body.type === '2'){
+
+    const check_tutor_query = "SELECT tutor FROM users WHERE user_id=$1"
+    const check_student_query = "SELECT student FROM users WHERE user_id=$1"
 
     const query = "INSERT INTO user_to_user (tutor_user, student_user) VALUES ($1, $2)"
 
     try{
-      const relationship = await db.oneOrNone(query, [req.params.id, req.session.user.user_id])
+      const valid_tutor = await db.oneOrNone(check_tutor_query, [req.params.id])
+      const valid_student = await db.oneOrNone(check_student_query, [req.session.user.user_id])
+      const email = await db.oneOrNone(user_email_query, req.params.id)
+      console.log(valid_tutor, valid_student)
+      if (valid_tutor.tutor === true && valid_student.student === true){
+        const relationship = await db.oneOrNone(query, [req.params.id, req.session.user.user_id])
+        res.redirect('/profile/' + req.params.id)
+      } else {
+        res.render('pages/connection', {message: 'Invalid Relationship, You are not a student or this user is not a tutor', error:true, session: (req.session.user?true:false), user: (req.session.user?req.session.user.user_id:false), user_email: email.email, user_id: req.params.id})
+      }
     } catch (e){
       console.error('Error during rendering of profile page', e)
       res.status(400).render('pages/profile', {session: (req.session.user?true:false), message: 'There was an error, please try again', error: true, user: (req.session.user?req.session.user.user_id:false)});
     }
   }else if (req.body.type === '1'){
+
+    const check_tutor_query = "SELECT tutor FROM users WHERE user_id=$1"
+    const check_student_query = "SELECT student FROM users WHERE user_id=$1"
+
     const query = "INSERT INTO user_to_user (tutor_user, student_user) VALUES ($1, $2)"
 
     try{
+      const valid_tutor = await db.oneOrNone(check_tutor_query, [req.session.user.user_id])
+      const valid_student = await db.oneOrNone(check_student_query, [req.params.id])
+      const email = await db.oneOrNone(user_email_query, req.params.id)
+      if (valid_tutor.tutor === true && valid_student.student === true){
       const relationship = await db.oneOrNone(query, [req.session.user.user_id, req.params.id])
+      res.redirect('/profile/' + req.params.id)
+      } else {
+        res.render('pages/connection', {message: 'Invalid Relationship, You are not a tutor or this user is not a student', error:true, session: (req.session.user?true:false), user: (req.session.user?req.session.user.user_id:false), user_email: email.email, user_id: req.params.id})
+      }
     } catch (e){
       console.error('Error during rendering of profile page', e)
       res.status(400).render('pages/profile', {session: (req.session.user?true:false), message: 'There was an error, please try again', error: true, user: (req.session.user?req.session.user.user_id:false)});
     }
+  }else{
+    res.redirect('/profile/' + req.params.id)
   }
 
-  res.redirect('/profile/' + req.params.id)
+  
 })
 
 app.post('/delete-connection/:id', async (req, res) => {

@@ -20,7 +20,7 @@
 <main>
     <div class="container">
 
-
+<%- include ('../partials/message') %>
         <% if (editMode) { %>
             <!-- Edit Mode -->
             <form id="profileForm" action="/update-profile" method="post" class="<%= editMode ? 'edit-mode' : '' %>">
