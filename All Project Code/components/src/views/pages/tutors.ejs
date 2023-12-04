@@ -23,7 +23,7 @@
                         
                         
                     <% courses.forEach(course => { %>
-                        <option value="<%= course.course_id %>" <%-classes.has(course.course_id+'')?"selected='selected'":''%>><%= course.course_name %></option>
+                        <option value="<%= course.course_id %>"><%= course.course_name %></option>
                         
                     <% }); %>
                 </select>       

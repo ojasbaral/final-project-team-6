@@ -21,10 +21,12 @@
                     <select id="classes" name="classes[]" multiple class="select2" style="width: 350px;">
                             
                             
-                        <% courses.forEach(course => { %>
-                            <option value="<%= course.course_id %>" <%-classes.has(course.course_id+'')?"selected='selected'":''%>><%= course.course_name %></option>
-                            
-                        <% }); %>
+                        <% courses.forEach(course=> { %>
+                            <option value="<%= course.course_id %>">
+                                <%= course.course_name %>
+                            </option>
+                        
+                            <% }); %>
                     </select>       
                     </div>         
                     <select id="time_info" name="time_info[]" multiple class="select2" style="width: 260px;">
