@@ -74,6 +74,7 @@ const profileData = {
   wednesday_time_info: [],
   thursday_time_info: [],
   friday_time_info: [],
+  rate_info: null,
   contact_info: null,
   tutor: null,
   student: null,
@@ -124,7 +125,7 @@ app.post('/login', async (req, res) => {
         if (match) { //password match -> save user session and redirect
             req.session.user = user;
             req.session.save();
-            res.redirect('/');
+            res.redirect('/profile/'+req.session.user.user_id);
         } else {
             res.status(400).render('pages/login', {session: (req.session.user?true:false), message: 'Incorrect password', error: true, user: (req.session.user?req.session.user.user_id:false)});
         }
@@ -245,6 +246,7 @@ app.get('/update-profile', async(req, res) => {
       wednesday_time_info: Array.isArray(profileData.wednesday_time_info) ? profileData.wednesday_time_info : [],
       thursday_time_info: Array.isArray(profileData.thursday_time_info) ? profileData.thursday_time_info : [],
       friday_time_info: Array.isArray(profileData.friday_time_info) ? profileData.friday_time_info : [],
+      rate_info: req.session.user.rate_info,
       contact_info: req.session.user.contact_info,
       tutor: req.session.user.tutor,
       student: req.session.user.student,
@@ -273,11 +275,13 @@ app.post('/update-profile', async (req, res) => {
   profileData.thursday_time_info = req.body.thursday_time_info;
   profileData.friday_time_info = req.body.friday_time_info;
   profileData.allTimes = req.body.allTimes;
+  profileData.rate_info = req.body.rate_info;
   profileData.contact_info = req.body.contact_info;
   profileData.tutor = req.body.tutor;
   profileData.student = req.body.student;
 
   req.session.user.bio = profileData.bio;
+  req.session.user.rate_info = profileData.rate_info;
   req.session.user.contact_info = profileData.contact_info;
   req.session.user.tutor = profileData.tutor;
   req.session.user.student = profileData.student;
@@ -320,9 +324,10 @@ const timeInfoString = `
 req.session.user.time_info = timeInfoString;
 
   const updatedFields = {
-    bio: profileData.bio,
+    bio: profileData.bio.trim(),
     time_info: timeInfoString,
-    contact_info: profileData.contact_info,
+    rate_info: profileData.rate_info.trim(),
+    contact_info: profileData.contact_info.trim(),
     tutor: profileData.tutor==='on'?true:false,
     student: profileData.student==='on'?true:false
   };

@@ -1,10 +1,8 @@
-<!-- EJS file - pages/profile.ejs -->
 
 <%- include ('../partials/head') %>
 <%- include ('../partials/navbar') %>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-<!-- Include Select2 CSS -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
@@ -24,7 +22,6 @@
         <% if (editMode) { %>
             <!-- Edit Mode -->
             <form id="profileForm" action="/update-profile" method="post" class="<%= editMode ? 'edit-mode' : '' %>">
-                <!-- ... Your edit form fields ... -->
                 <h1>Populate Your Profile</h1>
                 <div class="form-group">
                     <label for="bio">Bio:</label>
@@ -118,7 +115,18 @@
 
                 <!-- Contact Info -->
                 <div class="form-group">
-                    <label for="contact_info">Contact Information:</label>
+                    <label for="rate_info">Price Range:</label>
+                    <div class="textarea-container">
+                        <% if (editMode) { %>
+                            <textarea id="rate_info" name="rate_info" rows="2" cols="30"><%= rate_info %></textarea>
+                        <% } else { %>
+                            <span><%= rate_info %></span>
+                        <% } %>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="rate_info">Contact Information:</label>
                     <div class="textarea-container">
                         <% if (editMode) { %>
                             <textarea id="contact_info" name="contact_info" rows="2" cols="30"><%= contact_info %></textarea>
