@@ -1,6 +1,6 @@
 # README:
 
-# Brief Application description
+# Brief description
 Contributors - In this case, it will be the team Members
 Technology Stack used for the project
 Prerequisites to run the application - Any software that needs to be installed to run the application
@@ -8,7 +8,7 @@ Instructions on how to run the application locally.
 How to run the tests
 Link to the deployed application
 
-# Buffs ++ Application description: 
+# Buffs++ Application 
 Users login or register if they do not have an account. After a user has successfully logged in they will be redirected to their profile page with an updated Navbar with links to a students and tutors page. Users will have a full UI to interact with the application, including a profile page to update different features of their account. The tutors and students pages will display all current students or tutors (depending on what page the user is on), with the class and time they’re looking to connect with people for. If the user finds someone they want to connect with they can view their profile and create a relationship with them. Users can log in and out of the application and the session will be maintained. There will be a database that stores student-tutor pairs, usernames/user emails and passwords and other user identifiers.
 
 
