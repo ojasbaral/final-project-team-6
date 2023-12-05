@@ -48,12 +48,12 @@ Testing Tools: Mocha and Chai
 Make sure you have a .env file in the same folder as your docker-compose.yaml. If you don’t have one, create one and copy these contents into the file. 
 .env-
 
-# database credentials
+database credentials
 POSTGRES_USER="postgres"
 POSTGRES_PASSWORD="pwd"
 POSTGRES_DB="users_db"
 
-# Node vars
+Node vars
 SESSION_SECRET="super duper secret!"
 API_KEY="<API key you just created>"
 
