@@ -61,15 +61,19 @@ API_KEY="<API key you just created>"
 
 
 Now that we've configured the .env files, starting docker compose is quite simple. Call this in your terminal.
+```bash
 $      docker compose up -d 
+```
 
-
-To shut down the containers after exploring the site by calling this in your terminal 
+To shut down the containers after exploring the site by calling this in your terminal
+```bash 
 $    docker compose down -v 
+```
 
 Once docker is up and running, open your favorite web browser and search 
- 
+```bash
 localhost:3000/
+```
 
 This will bring you to our landing page, follow the prompts to log in or register and continue exploring from there. 
 
