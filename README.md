@@ -47,7 +47,7 @@ Testing Tools: Mocha and Chai
 ### How to run:
 Make sure you have a .env file in the same folder as your docker-compose.yaml. If you don’t have one, create one and copy these contents into the file. 
 
-.env-
+> **.env** 
 ```bash
 # database credentials
 POSTGRES_USER="postgres"
