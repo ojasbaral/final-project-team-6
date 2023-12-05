@@ -14,12 +14,12 @@ Users login or register if they do not have an account. After a user has success
 
 
 ### Contributors: 
-Amelia Lunn - amlu6553 
-Cade Mather - cademather
-Sophia Soka - SophiaSoka
-Nick Cisne - nickcisne 
-Ojas Baral -  ojasbaral
-Vesaun Shrestha - vesaun
+* Amelia Lunn - amlu6553 
+* Cade Mather - cademather
+* Sophia Soka - SophiaSoka
+* Nick Cisne - nickcisne 
+* Ojas Baral -  ojasbaral
+* Vesaun Shrestha - vesaun
 
 
 ### Our Technology Stack: 
