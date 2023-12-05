@@ -1,18 +1,18 @@
 <%- include ('../partials/head') %>
-    <%- include ('../partials/navbar') %>
-    
-    <div class="container-fluid d-flex align-items-center justify-content-center flex-column" style="text-align: center;">
-        <h1 style="font-size: 50px; margin-top: 15rem;">
-            Buffs++
-        </h1>
-        <h4>
-            Buffs++ provides CU Boulder students studying computer science with resources to learn, teach and excel.
-        </h4>
+<%- include ('../partials/navbar') %>
 
-        <div>
-            <a class="btn btn-primary" href="/login" role="button" style="width: 20rem; margin: 1rem;">Login</a>
-            <a class="btn btn-primary" href="/register" role="button" style="width: 20rem; margin: 1rem;">Register</a>
-        </div>
+<div class="container-fluid d-flex align-items-center justify-content-center flex-column" style="text-align: center; background-image: url('../../resources/img/cu_campus.jpg'); background-size: cover; background-position: center; height: 100vh;">
+    <h1 style="font-size: 50px; margin-top: 15rem;">
+        Buffs++
+    </h1>
+    <h4>
+        Buffs++ provides CU Boulder students studying computer science with resources to learn, teach and excel.
+    </h4>
+
+    <div>
+        <a class="btn btn-primary" href="/login" role="button" style="width: 20rem; margin: 1rem;">Login</a>
+        <a class="btn btn-primary" href="/register" role="button" style="width: 20rem; margin: 1rem;">Register</a>
     </div>
+</div>
 
 <%- include ('../partials/footer') %>
