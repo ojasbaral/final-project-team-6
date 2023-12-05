@@ -58,41 +58,12 @@ describe('Server!', () => {
   });
   })
 
-  // ===========================================================================
-  // Students Unit Test Case
-  describe('/students', () => {
-    describe('positive: /students', () => {
-      it('should return an array of students', (done) => {
-        chai
-          .request(app)
-          .get('/students')
-          .end((err, res) => {
-            expect(res).to.have.status(200);
-            expect(res.body).to.be.an('array');
-            done();
-          });
-      });
-    });
   
-    describe('negative: /students', () => {
-      it('should handle errors and respond with an error message', (done) => {
-        chai
-          .request(app)
-          .get('/nonexistentroute') // Assuming this route does not exist
-          .end((err, res) => {
-            expect(res).to.have.status(404); // Or whichever status code you expect for a nonexistent route
-            // Additional error handling assertions can be added based on your application's behavior
-            done();
-          });
-      });
-    });
-  });
-
   // ===========================================================================
   // TO-DO: Part A Login unit test case
   describe('/login', () => {
     it('positive : /login', done => {
-    chai
+      chai
       .request(server)
       .post('/login')
       .send({email: email, password: '12345678'})
@@ -105,7 +76,7 @@ describe('Server!', () => {
   });
 
     it('negative : /login', done => {
-    chai
+      chai
       .request(server)
       .post('/login')
       .send({email: 'john.doe@example.com', password: '12345678'})
@@ -117,4 +88,33 @@ describe('Server!', () => {
       });
   });
   })
+});
+// ===========================================================================
+// Students Unit Test Case
+describe('/students', () => {
+  describe('positive: /students', () => {
+    it('should return an array of students', (done) => {
+      chai
+        .request(app)
+        .get('/students')
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.be.an('array');
+          done();
+        });
+    });
+  });
+
+  describe('negative: /students', () => {
+    it('should handle errors and respond with an error message', (done) => {
+      chai
+        .request(app)
+        .get('/nonexistentroute') // Assuming this route does not exist
+        .end((err, res) => {
+          expect(res).to.have.status(404); // Or whichever status code you expect for a nonexistent route
+          // Additional error handling assertions can be added based on your application's behavior
+          done();
+        });
+    });
+  });
 });
