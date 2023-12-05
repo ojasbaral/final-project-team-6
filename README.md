@@ -1,4 +1,5 @@
 # README:
+![buffs++_logo (1)](https://github.com/ojasbaral/final-project-team-6/assets/112036430/00b10cda-c084-4b2f-b77c-938152216248)
 
 ## Brief description
 Contributors - In this case, it will be the team Members
@@ -8,7 +9,6 @@ Instructions on how to run the application locally.
 How to run the tests
 Link to the deployed application
 
-![buffs++_logo (1)](https://github.com/ojasbaral/final-project-team-6/assets/112036430/00b10cda-c084-4b2f-b77c-938152216248)
 
 
 ## Buffs++ Application 
