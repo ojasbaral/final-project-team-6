@@ -7,15 +7,9 @@ Prerequisites to run the application - Any software that needs to be installed t
 Instructions on how to run the application locally.
 How to run the tests
 Link to the deployed application
-[Uploading buffs++_lo<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-	<key>URL</key>
-	<string>https://github.com/ojasbaral/final-project-team-6/blob/main/All%20Project%20Code/components/src/resources/img/buffs%2B%2B_logo.png</string>
-</dict>
-</plist>
-go.png.webloc…]()
+
+![buffs++_logo (1)](https://github.com/ojasbaral/final-project-team-6/assets/112036430/00b10cda-c084-4b2f-b77c-938152216248)
+
 
 ## Buffs++ Application 
 Users login or register if they do not have an account. After a user has successfully logged in they will be redirected to their profile page with an updated Navbar with links to a students and tutors page. Users will have a full UI to interact with the application, including a profile page to update different features of their account. The tutors and students pages will display all current students or tutors (depending on what page the user is on), with the class and time they’re looking to connect with people for. If the user finds someone they want to connect with they can view their profile and create a relationship with them. Users can log in and out of the application and the session will be maintained. There will be a database that stores student-tutor pairs, usernames/user emails and passwords and other user identifiers.
