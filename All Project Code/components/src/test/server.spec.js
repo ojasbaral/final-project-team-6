@@ -95,18 +95,21 @@ describe('/students', () => {
   describe('positive: /students', () => {
     it('should return an array of students', (done) => {
       chai
+
         .request(server)
         .get('/students')
         .end((err, res) => {
           expect(res).to.have.status(200);
           done();
         });
+
     });
   });
-
+  
   describe('negative: /students', () => {
     it('should handle errors and respond with an error message', (done) => {
       chai
+
         .request(server)
         .get('/nonexistentroute') // Assuming this route does not exist
         .end((err, res) => {
@@ -114,6 +117,39 @@ describe('/students', () => {
           // Additional error handling assertions can be added based on your application's behavior
           done();
         });
+
     });
   });
-});
+  
+  // ===========================================================================
+  // update-profile Unit Test Case
+  describe('/update-profile', () => {
+    
+    it('positive: /update-profile', done => {
+      var agent = chai.request.agent(server)
+      agent
+      .post('/login')
+      .send({email: email, password: '12345678'})
+      .then(function(res) {
+        return agent.post('/update-profile').send({bio: "hello", rate_info:"", monday_time_info:'', tuesday_time_info:'', wednesday_time_info:'', thursday_time_info:'', allTimes:'', contact_info:'', student:true,tutor:false}).then(function(res2){
+        expect(res2).to.have.status(200);
+        expect(res2.redirect).to.equals(false)
+        agent.close()
+        done()
+      })
+      })
+    })
+
+     it('negative: /update-profile', done => {
+      chai
+      .request(server)
+      .post('/update-profile').send({bio: "hello", rate_info:"", monday_time_info:'', tuesday_time_info:'', wednesday_time_info:'', thursday_time_info:'', allTimes:'', contact_info:'', student:true,tutor:false}).then(function(res){
+        expect(res).to.have.status(200);
+        expect(res.redirects).to.be.length(1)
+        done()
+      })
+    })
+    
+  })
+  
+  
