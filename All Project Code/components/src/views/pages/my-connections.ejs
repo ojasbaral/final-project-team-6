@@ -1,0 +1,23 @@
+<%- include ('../partials/head') %>
+    <%- include ('../partials/navbar') %>
+    <div class="container-fluid" style="margin:3rem;">
+        <h1><%- title %></h1>
+        <table class="table" style="width:auto;">
+            <tbody>
+                <%students.forEach(function(c){ %>
+                    <tr>
+                        <td>
+                            <%- c.email %>
+                        </td>
+                        <td>
+                    
+                                <a href="<%-"/profile/" + c.student_user %>"><button type="button">View Profile</button></a>
+                           
+                        </td>
+                    </tr>
+                    <% }) %>
+            </tbody>
+        </table>
+        </div>
+
+        <%- include ('../partials/footer') %>
