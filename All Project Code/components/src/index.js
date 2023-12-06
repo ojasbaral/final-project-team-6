@@ -734,6 +734,34 @@ app.post('/change-class-status', async (req, res) => {
   }
 })
 
+app.get('/my-students', async (req, res) => {
+  const query = "SELECT student_user, email FROM user_to_user, users WHERE tutor_user=$1 AND student_user=user_id"
+
+  try{
+
+    const students = await db.manyOrNone(query, [req.session.user.user_id])
+    res.render('pages/my-connections', {session: (req.session.user?true:false), user: (req.session.user?req.session.user.user_id:false), title: "My Students", students: students})
+
+  } catch (e) {
+    console.error('Error during rendering of my students page', e)
+    res.status(400).render('pages/profile', {session: (req.session.user?true:false), message: 'There was an error, please try again', error: true, user: (req.session.user?req.session.user.user_id:false)});
+  }
+})
+
+app.get('/my-tutors', async (req, res) => {
+  const query = "SELECT tutor_user, email FROM user_to_user, users WHERE student_user=$1 AND tutor_user=user_id"
+
+  try{
+
+    const tutors = await db.manyOrNone(query, [req.session.user.user_id])
+    res.render('pages/my-connections', {session: (req.session.user?true:false), user: (req.session.user?req.session.user.user_id:false), title: "My Tutors", students: tutors})
+
+  } catch (e) {
+    console.error('Error during rendering of my students page', e)
+    res.status(400).render('pages/profile', {session: (req.session.user?true:false), message: 'There was an error, please try again', error: true, user: (req.session.user?req.session.user.user_id:false)});
+  }
+})
+
 // START SERVER
 // app.listen(3000);
 module.exports = app.listen(3000);
