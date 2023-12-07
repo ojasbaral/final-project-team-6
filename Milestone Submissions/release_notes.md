@@ -1,5 +1,13 @@
 **Release Notes Buffs++**
 
+_12/07/2023_
+
+- Implemented Create a Relationship
+- Added role checking to creating a relationship
+- Allowed users to start tutoring a class
+- Changed landing page
+- Allow users to see their students and tutors
+
 _11/28/2023:_
 
 - Integrated populate profile with the rest of the site

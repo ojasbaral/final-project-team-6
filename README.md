@@ -80,4 +80,6 @@ localhost:3000/
 
 This will bring you to our landing page, follow the prompts to log in or register and continue exploring from there. 
 
+[Release Notes](https://github.com/ojasbaral/final-project-team-6/blob/main/Milestone%20Submissions/release_notes.md)
+
 
