@@ -9,7 +9,6 @@ CREATE TABLE users(
 	rate_info VARCHAR(100),
 	tutor BOOLEAN DEFAULT false,
 	student BOOLEAN DEFAULT false,
-	isConnected BOOLEAN DEFAULT false
 );
 
 DROP TABLE IF EXISTS posts CASCADE;
