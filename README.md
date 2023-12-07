@@ -80,4 +80,6 @@ localhost:3000/
 
 This will bring you to our landing page, follow the prompts to log in or register and continue exploring from there. 
 
+[Release Notes](Milestone Submissions/release_notes.md)
+
 
